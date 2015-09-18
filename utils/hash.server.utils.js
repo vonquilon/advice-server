@@ -1,0 +1,14 @@
+var crypto = require('crypto');
+
+exports.genHmac = function(key) {
+	var hmac = crypto.createHmac('sha1', key);
+
+	hmac.setEncoding('base64');
+	var i;
+	for (var i = 0; i < arguments.length; i++) {
+		hmac.write(arguments[i]);
+	}
+	hmac.end();
+
+	return hmac.read().toString('base64');
+};
