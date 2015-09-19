@@ -7,6 +7,7 @@ module.exports = function() {
 	require('../models/user.server.model');
 	require('../models/post.server.model');
 	require('../models/reply.server.model');
+	require('../models/session.server.model');
 
 	return db;
 };

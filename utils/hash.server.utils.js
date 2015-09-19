@@ -12,3 +12,7 @@ exports.genHmac = function(key) {
 
 	return hmac.read().toString('base64');
 };
+
+exports.genRandomString = function() {
+	return new Buffer(crypto.randomBytes(16).toString('base64'), 'base64');
+};

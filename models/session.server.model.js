@@ -12,10 +12,6 @@ var SessionSchema = new Schema({
 		ref: 'User',
 		required: true
 	},
-	created: {
-		type: Date,
-		default: Date.now
-	},
 	lastUsed: {
 		type: Date,
 		default: Date.now

@@ -13,5 +13,9 @@ module.exports = function(app) {
 
 	app.get('/signout', users.signout);
 
+	app.get('/users/:userId', users.getUser);
+
+	app.param('userId', users.findUserById);
+
 	app.get('/users', users.list);
 };
