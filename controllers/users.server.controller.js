@@ -38,39 +38,26 @@ exports.signin = function(req, res, next) {
 	});
 };
 
-exports.signout = function(req, res) {
-	req.logout();
-};
+exports.getUserOrUsers = function(req, res, next) {
+	if (req.query) {
+		if (req.query.username) {
+			User.find({ username: req.query.username }, 'email username created', function(err, user) {
+				if (err) {
+					return next(err);
+				}
 
-exports.getUser = function(req, res, next) {
-	var user = req.user;
-	user.key = hash.genHmac(user.key, user.email, user.username, Date.now().toString(), hash.genRandomString());
-
-	user.save(function(err) {
-		if (err) {
-			return next(err);
+				res.json(user);
+			});
+		} else {
+			// Send invalid query error
 		}
+	} else {
+		User.find({}, function (err, users) {
+			if (err) {
+				return next(err);
+			}
 
-		res.json(user);
-	});
-};
-
-exports.findUserById = function(req, res, next, id) {
-	User.findById(id, 'email username created key', function(err, user) {
-		if (err) {
-			return next(err);
-		}
-
-		req.user = user;
-	});
-};
-
-exports.list = function(req, res, next) {
-	User.find({}, function(err, users) {
-		if (err) {
-			return next(err);
-		}
-		
-		res.json(users);
-	});
+			res.json(users);
+		});
+	}
 };
