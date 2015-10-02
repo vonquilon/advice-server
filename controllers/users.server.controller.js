@@ -21,7 +21,7 @@ exports.create = function(req, res, next) {
 };
 
 exports.signin = function(req, res, next) {
-	User.findOne({ username: req.body.username }, 'email username created key', function(err, user) {
+	User.findOne({ username: req.body.username }, '_id email username created key', function(err, user) {
 		if (err) {
 			return next(err);
 		}
@@ -38,7 +38,7 @@ exports.signin = function(req, res, next) {
 	});
 };
 
-exports.getUserOrUsers = function(req, res, next) {
+exports.getUserInfo = function(req, res, next) {
 	if (req.query) {
 		if (req.query.username) {
 			User.find({ username: req.query.username }, 'email username created', function(err, user) {
@@ -48,6 +48,10 @@ exports.getUserOrUsers = function(req, res, next) {
 
 				res.json(user);
 			});
+		} else if (req.query.action) {
+			if (req.query.action === 'nonce') {
+				
+			}
 		} else {
 			// Send invalid query error
 		}

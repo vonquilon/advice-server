@@ -35,6 +35,9 @@ var UserSchema = new Schema({
 	key: {
 		type: String
 	},
+	nonce: {
+		type: String
+	},
 	provider: {
 		type: String,
 		required: true

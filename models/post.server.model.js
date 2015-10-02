@@ -8,12 +8,18 @@ var PostSchema = new Schema({
 	},
 	category: {
 		type: String,
-		enum: ['Relationships', 'Financial', 'Mental Health', 'Jobs', 'Depression', 'Sexism', 'Racism', 'Physical Health']
+		enum: ['Relationships', 'Financial', 'Mental Health', 'Jobs', 'Depression', 'Sexism', 'Racism', 'Physical Health', 'Reply'],
+		required: true
 	},
 	author: {
 		type: String,
 		required: true
 	},
+	replyTo: {
+		type: Schema.Types.ObjectId,
+		ref: 'Post',
+		required: true
+	},	
 	created: {
 		type: Date,
 		default: Date.now

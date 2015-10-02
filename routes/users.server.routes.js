@@ -6,5 +6,5 @@ module.exports = function(app) {
 
 	app.post('/signin', user.signin);
 
-	app.get('/users', users.getUserOrUsers);
+	app.get('/users', users.getUserInfo);
 };

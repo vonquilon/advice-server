@@ -4,8 +4,7 @@ var config = require('./config'),
 	compress = require('compression'),
 	bodyParser = require('body-parser'),
 	methodOverride = require('method-override'),
-	session = require('express-session'),
-	passport = require('passport');
+	session = require('express-session');
 
 module.exports = function() {
 	var app = express();
@@ -27,14 +26,10 @@ module.exports = function() {
 		resave: true,
 		secret: config.sessionSecret
 	}));
-
-	app.use(passport.initialize());
-	app.use(passport.session());
 	
 	require('../routes/index.server.routes.js')(app);
 	require('../routes/users.server.routes.js')(app);
 	require('../routes/posts.server.routes.js')(app);
-	require('../routes/replies.server.routes.js')(app);
 	require('../routes/sessions.server.routes.js')(app);
 
 	app.use(express.static('./public'));
