@@ -16,3 +16,9 @@ exports.genHmac = function(key) {
 exports.genRandomString = function() {
 	return new Buffer(crypto.randomBytes(16).toString('base64'), 'base64');
 };
+
+exports.getECDH = function() {
+	console.log(crypto.getCurves());
+
+	return crypto.createECDH('secp384r1').generateKeys();
+};

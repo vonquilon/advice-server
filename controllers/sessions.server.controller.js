@@ -1,8 +1,8 @@
 var Session = require('mongoose').model('Session'),
-	hash = require('../utils/hash.server.utils');
+	security = require('../utils/security.server.utils');
 
 exports.createSession = function(res, req, next) {
-	var sessionId = hash.genHmac(hash.genRandomString(), req.body._id);
+	var sessionId = security.genHmac(security.genRandomString(), req.body._id);
 	var session = new Session({ _id: sessionId, user: req.body._id });
 
 	session.save(function(err) {
@@ -18,9 +18,9 @@ exports.createSession = function(res, req, next) {
 };
 
 exports.getSession = function(req, res, next) {
-	//user.key = hash.genHmac(user.key, user.email, user.username, Date.now().toString(), hash.genRandomString());
+	//user.key = security.genHmac(user.key, user.email, user.username, Date.now().toString(), security.genRandomString());
 	var session = req.session;
-	session._id = hash.genHmac(hash.genRandomString(), session._id);
+	session._id = security.genHmac(security.genRandomString(), session._id);
 	session.lastUsed = Date.now;
 
 	session.save(function(err) {

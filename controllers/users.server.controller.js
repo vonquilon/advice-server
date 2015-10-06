@@ -1,11 +1,11 @@
 var User = require('mongoose').model('User'),
-	hash = require('../utils/hash.server.utils');
+	security = require('../utils/security.server.utils');
 
 exports.create = function(req, res, next) {
 	var user = new User(req.body);
 
 	user.provider = 'local';
-	user.key = hash.genHmac(hash.genRandomString(), user.email, user.username, user.created.toString());
+	user.key = security.genHmac(security.genRandomString(), user.email, user.username, user.created.toString());
 
 	user.save(function(err) {
 		if (err) {
@@ -32,7 +32,7 @@ exports.signin = function(req, res, next) {
 			return next(new Error('Wrong password'));
 		}
 
-		user.key = hash.genHmac(user.key, user.email, user.username, Date.now().toString(), hash.genRandomString());
+		user.key = security.genHmac(user.key, user.email, user.username, Date.now().toString(), security.genRandomString());
 
 		res.json(user);
 	});
@@ -48,10 +48,6 @@ exports.getUserInfo = function(req, res, next) {
 
 				res.json(user);
 			});
-		} else if (req.query.action) {
-			if (req.query.action === 'nonce') {
-				
-			}
 		} else {
 			// Send invalid query error
 		}
