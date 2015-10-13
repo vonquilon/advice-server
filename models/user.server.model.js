@@ -32,12 +32,6 @@ var UserSchema = new Schema({
 	salt: {
 		type: String
 	},
-	key: {
-		type: String
-	},
-	nonce: {
-		type: String
-	},
 	provider: {
 		type: String,
 		required: true
