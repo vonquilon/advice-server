@@ -1,0 +1,15 @@
+[req]
+prompt = no
+distinguished_name = dn
+req_extensions = ext
+input_password = iSp00nyou
+
+[dn]
+CN = localhost
+emailAddress = whath3fl1p@hotmail.com
+O = Advice
+L = Sayreville
+C = US
+
+[ext]
+subjectAltName = DNS:localhost,DNS:*localhost
