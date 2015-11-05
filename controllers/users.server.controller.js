@@ -1,11 +1,9 @@
-var User = require('mongoose').model('User'),
-	security = require('../utils/security.server.utils');
+var User = require('mongoose').model('User');
 
 exports.create = function(req, res, next) {
 	var user = new User(req.body);
 
 	user.provider = 'local';
-	user.key = security.genHmac(security.genRandomString(), user.email, user.username, user.created.toString());
 
 	user.save(function(err) {
 		if (err) {
@@ -21,7 +19,7 @@ exports.create = function(req, res, next) {
 };
 
 exports.signin = function(req, res, next) {
-	User.findOne({ username: req.body.username }, '_id email username created key', function(err, user) {
+	User.findOne({ username: req.body.username }, '_id email username created', function(err, user) {
 		if (err) {
 			return next(err);
 		}
@@ -31,8 +29,6 @@ exports.signin = function(req, res, next) {
 		if (!user.authenticate(req.body.password)) {
 			return next(new Error('Wrong password'));
 		}
-
-		user.key = security.genHmac(user.key, user.email, user.username, Date.now().toString(), security.genRandomString());
 
 		res.json(user);
 	});
