@@ -1,4 +1,6 @@
-var User = require('mongoose').model('User');
+var User = require('mongoose').model('User'),
+	errHandler = require('../utils/errHandler'),
+	duplicateMsg = 'Username already exists';
 
 exports.create = function(req, res, next) {
 	var user = new User(req.body);
@@ -7,7 +9,7 @@ exports.create = function(req, res, next) {
 
 	user.save(function(err) {
 		if (err) {
-			return next(err);
+			res.status(500).send(errHandler.getErrMsg(duplicateMsg, err));
 		}
 
 		delete user.role;

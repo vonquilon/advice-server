@@ -5,24 +5,29 @@ var mongoose = require('mongoose'),
 var UserSchema = new Schema({
 	email: {
 		type: String,
-		required: true,
-		match: /.+\@.+\..+/
+		trim: true,
+		unique: 'Email already exists',
+		required: 'Email is required',
+		match: [/.+\@.+\..+/, 'Invalid email address'],
+		maxlength: [50, 'Email cannot exceed {MAXLENGTH} characters']
 	},
 	username: {
 		type: String,
 		trim: true,
-		unique: true,
-		required: true
+		unique: 'Username already exists',
+		required: 'Username is required',
+		minlength: [2, 'Username must contain at least {MINLENGTH} characters'],
+		maxlength: [30, 'Username cannot exceed {MAXLENGTH} characters']
 	},
 	password: {
 		type: String,
-		required: true,
+		required: 'Password is required',
 		validate: [
 			function(password) {
-				return password.length >= 6;
-			},
-			'Password should be longer'
-		]
+				return password && password.length >= 6 && password.length <= 16;
+			}, 'Passwords should be between 8 and 16 characters'
+		],
+		match: [/.*[0-9]+.*/, 'Passwords should contain at least 1 number']
 	},
 	role: {
 		type: String,
@@ -34,7 +39,7 @@ var UserSchema = new Schema({
 	},
 	provider: {
 		type: String,
-		required: true
+		required: 'Provider is required'
 	},
 	created: {
 		type: Date,
