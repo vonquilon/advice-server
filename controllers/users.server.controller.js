@@ -9,30 +9,32 @@ exports.create = function(req, res, next) {
 
 	user.save(function(err) {
 		if (err) {
-			res.status(500).send(errHandler.getErrMsg(duplicateMsg, err));
+			var errMsg = errHandler.getErrMsg(duplicateMsg, err);
+			res.status(errMsg.statCode).send(errMsg.msg);
 		}
 
 		delete user.role;
 		delete user.provider;
 		delete user.salt;
 				
-		res.json(user);
+		res.status(201).json(user);
 	});
 };
 
 exports.signin = function(req, res, next) {
 	User.findOne({ username: req.body.username }, '_id email username created', function(err, user) {
 		if (err) {
-			return next(err);
+			var errMsg = errHandler.getErrMsg(duplicateMsg, err);
+			res.status(errMsg.statCode).send(errMsg.msg);
 		}
 		if (!user) {
-			return next(new Error('Unknown username'));
+			res.status(404).send('Unknown username');
 		}
 		if (!user.authenticate(req.body.password)) {
-			return next(new Error('Wrong password'));
+			res.status(401).send('Wrong password');
 		}
 
-		res.json(user);
+		res.status(200).json(user);
 	});
 };
 
@@ -41,21 +43,23 @@ exports.getUserInfo = function(req, res, next) {
 		if (req.query.username) {
 			User.find({ username: req.query.username }, 'email username created', function(err, user) {
 				if (err) {
-					return next(err);
+					var errMsg = errHandler.getErrMsg(duplicateMsg, err);
+					res.status(errMsg.statCode).send(errMsg.msg);
 				}
 
-				res.json(user);
+				res.status(200).json(user);
 			});
 		} else {
-			// Send invalid query error
+			res.status(400).send('Invalid query');
 		}
 	} else {
 		User.find({}, function (err, users) {
 			if (err) {
-				return next(err);
+				var errMsg = errHandler.getErrMsg(duplicateMsg, err);
+				res.status(errMsg.statCode).send(errMsg.msg);
 			}
 
-			res.json(users);
+			res.status(200).json(users);
 		});
 	}
 };

@@ -1,6 +1,6 @@
 var mongoose = require('mongoose'),
-	crypto = require('crypto'),
-	Schema = mongoose.Schema;
+	Schema = mongoose.Schema,
+	security = require('../utils/security');
 
 var UserSchema = new Schema({
 	email: {
@@ -34,9 +34,8 @@ var UserSchema = new Schema({
 		enum: ['admin', 'user'],
 		default: 'user'
 	},
-	salt: {
-		type: String
-	},
+	accessToken: String,
+	salt: String,
 	provider: {
 		type: String,
 		required: 'Provider is required'
@@ -49,15 +48,19 @@ var UserSchema = new Schema({
 
 UserSchema.pre('save', function(next) {
 	if (this.password) {
-		this.salt = new Buffer(crypto.randomBytes(16).toString('base64'), 'base64');
+		this.salt = security.genRandomStr();
 		this.password = this.hashPassword(this.password);
+	}
+
+	if (this.email && this.username) {
+		this.accessToken = security.genHmac(security.genRandomStr(), this.email, this.username);
 	}
 
 	next();
 });
 
 UserSchema.methods.hashPassword = function(password) {
-	return crypto.pbkdf2Sync(password, this.salt, 10000, 64).toString('base64');
+	return security.hashPassword(password, this.salt);
 };
 
 UserSchema.methods.authenticate = function(password) {
