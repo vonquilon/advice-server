@@ -1,4 +1,6 @@
 var config = require('./config'),
+	https = require('https'),
+	fs = require('fs'),
 	express = require('express'),
 	morgan = require('morgan'),
 	compress = require('compression'),
@@ -8,6 +10,11 @@ var config = require('./config'),
 
 module.exports = function() {
 	var app = express();
+    var server = https.createServer({
+        key: fs.readFileSync('./config/certs/advc.key'),
+        cert: fs.readFileSync('./config/certs/advc.crt'),
+        passphrase: 'iSp00nyou'
+    }, app);
 
 	if (process.env.NODE_ENV === 'development') {
 		app.use(morgan('dev'));
@@ -34,5 +41,5 @@ module.exports = function() {
 
 	app.use(express.static('./public'));
 
-	return app;
+	return server;
 };
