@@ -7,7 +7,7 @@ exports.create = function(req, res, next) {
 
 	user.provider = 'local';
 
-	user.save(function(err) {
+	user.genAccTokAndSave(function(err) {
 		errHandler.handleErr(duplicateMsg, err, res);
 
 		delete user.role;
@@ -29,7 +29,7 @@ exports.signin = function(req, res, next) {
 			res.status(401).send('Wrong password');
 		}
 
-		user.save(function(err) {
+		user.genAccTokAndSave(function(err) {
 			errHandler.handleErr(duplicateMsg, err, res);
 
 			res.status(200).json(user);
@@ -37,7 +37,7 @@ exports.signin = function(req, res, next) {
 	});
 };
 
-exports.getUserInfo = function(req, res, next) {
+exports.getUserInfo = function(req, res) {
 	if (req.query.username) {
 		User.find({ username: req.query.username }, 'email username created', function(err, user) {
 			errHandler.handleErr(duplicateMsg, err, res);

@@ -52,10 +52,6 @@ UserSchema.pre('save', function(next) {
 		this.password = this.hashPassword(this.password);
 	}
 
-	if (this.email && this.username && this.salt) {
-		this.accessToken = security.genHmac(this.salt, this.email, this.username);
-	}
-
 	next();
 });
 
@@ -65,6 +61,14 @@ UserSchema.methods.hashPassword = function(password) {
 
 UserSchema.methods.authenticate = function(password) {
 	return this.password === this.hashPassword(password);
+};
+
+UserSchema.methods.genAccTokAndSave = function(cb) {
+	if (this.email && this.username) {
+		this.accessToken = security.genHmac(security.genRandomStr(), this.email, this.username);
+	}
+
+	this.save(cb);
 };
 
 mongoose.model('User', UserSchema);
