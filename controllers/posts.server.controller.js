@@ -1,42 +1,62 @@
-var Post = require('mongoose').model('Post');
+var mongoose = require('mongoose'),
+    Post = mongoose.model('Post'),
+    User = mongoose.model('User'),
+    errHandler = require('../utils/errHandler'),
+    duplicateMsg = 'Post already exists';
 
-exports.createPost = function(req, res, next) {
-	//if (req.user) {
-		var post = new Post(req.body);
-		//post.author = req.user._id;
-		post.save(function(err) {
-			if (err) {
-				return next(err);
-			}
+exports.createPost = function(req, res) {
+    if (req.query.accessToken) {
+        User.findOne({ accessToken: req.query.accessToken }, '_id', function(err, user) {
+            errHandler.handleErr(undefined, err, res);
 
-			res.json(post);
-		});
-	//} else {
-	//	next();
-	//}
+            if (!user || user._id !== req.body._id) {
+                res.status(401).send('Unauthorized access');
+            }
+
+            var post = new Post(req.body);
+
+            post.save(function(err) {
+                errHandler.handleErr(duplicateMsg, err, res);
+
+                res.status(201).json(post);
+            });
+        });
+    } else {
+        res.status(400).send('Invalid query parameter');
+    }
 };
 
-exports.listPosts = function(req, res, next) {
-	Post.find({}, function(err, posts) {
-		if (err) {
-			return next(err);
-		}
+exports.listPosts = function(req, res) {
+    var query,
+        sortBy = 'created',
+        sortOrder = '-';
 
-		res.json(posts);
-	});
-};
+    if (req.query.username) {
+        query = Post.findPostsByUsername(req.query.username);
+    } else {
+        query = Post.find().populate({ path: 'author', select: 'username' });
+    }
 
-exports.getPostsFromUsername = function(req, res) {
-	res.json(req.posts);
-};
+    if (req.query.sortBy) {
+        switch (req.query.sortBy) {
+            case 'author':
+                sortBy = 'author.username';
+                break;
+        }
+    }
 
-exports.findPostsByUsername = function(req, res, next, username) {
-	Post.findPostsByUsername(username, function(err, posts) {
-		if (err) {
-			return next(err);
-		}
+    if (req.query.sortOrder) {
+        switch (req.query.sortOrder) {
+            case 'asc':
+            case 'ascending':
+                sortOrder = '';
+        }
+    }
 
-		req.posts = posts;
-		next();
-	});
+    query.sort(sortOrder + sortBy)
+        .exec(function(err, posts) {
+            errHandler.handleErr(undefined, err, res);
+
+		    res.status(200).json(posts);
+	    });
 };

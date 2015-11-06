@@ -55,6 +55,6 @@ exports.getUserInfo = function(req, res, next) {
 			});		
 		});
 	} else {
-		res.status(400).send('Invalid query');
+		res.status(400).send('Invalid query parameter');
 	}
 };

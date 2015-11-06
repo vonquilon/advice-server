@@ -4,22 +4,22 @@ var mongoose = require('mongoose'),
 var PostSchema = new Schema({
 	content: {
 		type: String,
-		required: true
+		required: 'Content is required',
+		trim: true
 	},
 	category: {
 		type: String,
 		enum: ['Relationships', 'Financial', 'Mental Health', 'Jobs', 'Depression', 'Sexism', 'Racism', 'Physical Health', 'Reply'],
-		required: true
+		required: 'Category is required'
 	},
 	author: {
 		type: Schema.Types.ObjectId,
 		ref: 'User',
-		required: true
+		required: 'Author is required'
 	},
 	replyTo: {
 		type: Schema.Types.ObjectId,
-		ref: 'Post',
-		required: true
+		ref: 'Post'
 	},	
 	created: {
 		type: Date,
@@ -28,7 +28,17 @@ var PostSchema = new Schema({
 });
 
 PostSchema.statics.findPostsByUsername = function(username, cb) {
-	this.find({author: username }, cb);
+    var populateOptions = {
+        path: 'author',
+        select: 'username',
+        match: { username: username }
+    };
+
+    if (!cb) {
+        return this.find().populate(populateOptions);
+    }
+
+	this.find().populate(populateOptions).exec(cb);
 };
 
 mongoose.model('Post', PostSchema);
