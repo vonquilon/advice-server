@@ -5,8 +5,7 @@ var config = require('./config'),
 	morgan = require('morgan'),
 	compress = require('compression'),
 	bodyParser = require('body-parser'),
-	methodOverride = require('method-override'),
-	session = require('express-session');
+	methodOverride = require('method-override');
 
 module.exports = function() {
 	var app = express();
@@ -27,12 +26,6 @@ module.exports = function() {
 	}));
 	app.use(bodyParser.json());
 	app.use(methodOverride());
-
-	app.use(session({
-		saveUninitialized: true,
-		resave: true,
-		secret: config.sessionSecret
-	}));
 	
 	require('../routes/index.server.routes.js')(app);
 	require('../routes/users.server.routes.js')(app);

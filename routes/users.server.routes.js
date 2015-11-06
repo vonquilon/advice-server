@@ -1,5 +1,4 @@
-var users = require('../controllers/users.server.controller'),
-	passport = require('passport');
+var users = require('../controllers/users.server.controller');
 
 module.exports = function(app) {
 	app.post('/signup', users.create);

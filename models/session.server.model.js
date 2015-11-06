@@ -5,7 +5,7 @@ var SessionSchema = new Schema({
 	user: {
 		type: Schema.Types.ObjectId,
 		ref: 'User',
-		required: true
+		required: 'User id is required'
 	},
 	lastUsed: {
 		type: Date,

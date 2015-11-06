@@ -1,19 +1,17 @@
 var Session = require('mongoose').model('Session'),
-	security = require('../utils/security.server.utils');
+	errHandler = require('../utils/errHandler'),
+	duplicateMsg = 'Session already exists';
 
 exports.createSession = function(res, req, next) {
-	var sessionId = security.genHmac(security.genRandomString(), req.body._id);
-	var session = new Session({ _id: sessionId, user: req.body._id });
+	var session = new Session(req.body);
 
 	session.save(function(err) {
-		if (err) {
-			return next(err);
-		}
+		errHandler.handleErr(duplicateMsg, err, res);
 
 		delete session.user;
 		delete session.lastUsed;
 
-		res.json(session);
+		res.status(201).json(session);
 	});
 };
 

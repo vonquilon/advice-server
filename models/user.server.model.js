@@ -52,8 +52,8 @@ UserSchema.pre('save', function(next) {
 		this.password = this.hashPassword(this.password);
 	}
 
-	if (this.email && this.username) {
-		this.accessToken = security.genHmac(security.genRandomStr(), this.email, this.username);
+	if (this.email && this.username && this.salt) {
+		this.accessToken = security.genHmac(this.salt, this.email, this.username);
 	}
 
 	next();

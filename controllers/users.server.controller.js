@@ -8,10 +8,7 @@ exports.create = function(req, res, next) {
 	user.provider = 'local';
 
 	user.save(function(err) {
-		if (err) {
-			var errMsg = errHandler.getErrMsg(duplicateMsg, err);
-			res.status(errMsg.statCode).send(errMsg.msg);
-		}
+		errHandler.handleErr(duplicateMsg, err, res);
 
 		delete user.role;
 		delete user.provider;
@@ -22,11 +19,9 @@ exports.create = function(req, res, next) {
 };
 
 exports.signin = function(req, res, next) {
-	User.findOne({ username: req.body.username }, '_id email username created', function(err, user) {
-		if (err) {
-			var errMsg = errHandler.getErrMsg(duplicateMsg, err);
-			res.status(errMsg.statCode).send(errMsg.msg);
-		}
+	User.findOne({ username: req.body.username }, '_id email username created accessToken', function(err, user) {
+		errHandler.handleErr(duplicateMsg, err, res);
+
 		if (!user) {
 			res.status(404).send('Unknown username');
 		}
@@ -34,32 +29,32 @@ exports.signin = function(req, res, next) {
 			res.status(401).send('Wrong password');
 		}
 
-		res.status(200).json(user);
+		user.save(function(err) {
+			errHandler.handleErr(duplicateMsg, err, res);
+
+			res.status(200).json(user);
+		});
 	});
 };
 
 exports.getUserInfo = function(req, res, next) {
-	if (req.query) {
-		if (req.query.username) {
-			User.find({ username: req.query.username }, 'email username created', function(err, user) {
-				if (err) {
-					var errMsg = errHandler.getErrMsg(duplicateMsg, err);
-					res.status(errMsg.statCode).send(errMsg.msg);
-				}
+	if (req.query.username) {
+		User.find({ username: req.query.username }, 'email username created', function(err, user) {
+			errHandler.handleErr(duplicateMsg, err, res);
 
-				res.status(200).json(user);
-			});
-		} else {
-			res.status(400).send('Invalid query');
-		}
-	} else {
-		User.find({}, function (err, users) {
-			if (err) {
-				var errMsg = errHandler.getErrMsg(duplicateMsg, err);
-				res.status(errMsg.statCode).send(errMsg.msg);
-			}
-
-			res.status(200).json(users);
+			res.status(200).json(user);
 		});
+	} else if(req.query.accessToken) {
+		User.findOne({ accessToken: req.query.accessToken }, 'role', function(err, user) {
+			errHandler.handleErr(duplicateMsg, err, res);
+
+			User.find({}, function(err, users) {
+				errHandler.handleErr(duplicateMsg, err, res);
+
+				res.status(200).json(users);
+			});		
+		});
+	} else {
+		res.status(400).send('Invalid query');
 	}
 };

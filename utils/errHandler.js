@@ -26,3 +26,10 @@ exports.getErrMsg = function(duplicateMsg, err) {
 
     return new exports.ErrMsg(statCode, msg);
 };
+
+exports.handleErr = function(duplicateMsg, err, res) {
+    if (err) {
+        var errMsg = exports.getErrMsg(duplicateMsg, err);
+        res.status(errMsg.statCode).send(errMsg.msg);
+    }
+};
