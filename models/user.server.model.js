@@ -71,4 +71,8 @@ UserSchema.methods.genAccTokAndSave = function(cb) {
 	this.save(cb);
 };
 
+UserSchema.statics.findByUsername = function(username, select, cb) {
+    this.findOne({ username: username }, select, cb);
+};
+
 mongoose.model('User', UserSchema);

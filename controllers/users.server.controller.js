@@ -23,8 +23,8 @@ exports.create = function(req, res, next) {
 	});
 };
 
-exports.signin = function(req, res, next) {
-	User.findOne({ username: req.body.username }, '_id email username created accessToken', function(err, user) {
+exports.signin = function(req, res) {
+	User.findByUsername(req.body.username, '_id email username created accessToken', function(err, user) {
 		errHandler.handleErr(duplicateMsg, err, res);
 
 		if (!user) {
@@ -44,20 +44,24 @@ exports.signin = function(req, res, next) {
 
 exports.getUserInfo = function(req, res) {
 	if (req.query.username) {
-		User.find({ username: req.query.username }, 'email username created', function(err, user) {
+		User.findByUsername(req.query.username, 'email username created', function(err, user) {
 			errHandler.handleErr(duplicateMsg, err, res);
 
 			res.status(200).json(user);
 		});
-	} else if(req.query.accessToken) {
-		User.findOne({ accessToken: req.query.accessToken }, 'role', function(err, user) {
-			errHandler.handleErr(duplicateMsg, err, res);
+	} else if(req.query.accessToken && req.query.userId) {
+		User.findById(req.query.userId, 'role accessToken', function(err, user) {
+			errHandler.handleErr(undefined, err, res);
 
-			User.find({}, function(err, users) {
-				errHandler.handleErr(duplicateMsg, err, res);
+            if (user.accessToken === req.query.accessToken && user.role === 'admin') {
+                User.find({}, function (err, users) {
+                    errHandler.handleErr(undefined, err, res);
 
-				res.status(200).json(users);
-			});		
+                    res.status(200).json(users);
+                });
+            } else {
+                res.status(401).send('Unauthorized operation');
+            }
 		});
 	} else {
 		res.status(400).send('Invalid query parameter');
