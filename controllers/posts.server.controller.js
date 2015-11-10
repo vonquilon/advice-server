@@ -2,7 +2,7 @@ var mongoose = require('mongoose'),
     Post = mongoose.model('Post'),
     User = mongoose.model('User'),
     errHandler = require('../utils/errHandler'),
-    duplicateMsg = 'Post already exists';
+    messages = require('../utils/messages');
 
 exports.createPost = function(req, res) {
     if (req.query.accessToken && req.query.userId) {
@@ -10,7 +10,7 @@ exports.createPost = function(req, res) {
             errHandler.handleErr(err, res);
 
             if (!user || !user.validateAccTok(req.query.accessToken)) {
-                res.status(401).send('Unauthorized access');
+                res.status(401).send(messages.401.unauthAcc);
             }
 
             var post = new Post(req.body);
@@ -22,7 +22,7 @@ exports.createPost = function(req, res) {
             });
         });
     } else {
-        res.status(400).send('Invalid query parameter');
+        res.status(400).send(messages.400.invalidQueryParam);
     }
 };
 

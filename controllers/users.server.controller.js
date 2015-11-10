@@ -1,6 +1,6 @@
 var User = require('mongoose').model('User'),
 	errHandler = require('../utils/errHandler'),
-	duplicateMsg = 'Username already exists';
+	messages = require('../utils/messages');
 
 exports.create = function(req, res) {
 	var user = new User(req.body);
@@ -8,7 +8,7 @@ exports.create = function(req, res) {
 	user.provider = 'local';
 
 	user.genAccTokAndSave(function(err) {
-		errHandler.handleErr(err, res, duplicateMsg);
+		errHandler.handleErr(err, res, messages.409.usernameDuplicateMsg);
 				
 		res.status(201).json(user.clean());
 	});
@@ -19,10 +19,10 @@ exports.signin = function(req, res) {
 		errHandler.handleErr(err, res);
 
 		if (!user) {
-			res.status(404).send('Unknown username');
+			res.status(404).send(messages.404.unknownUsrNam);
 		}
 		if (!user.authenticate(req.body.password)) {
-			res.status(401).send('Wrong password');
+			res.status(401).send(messages.401.wrongPassword);
 		}
 
 		user.genAccTokAndSave(function(err) {
@@ -51,11 +51,11 @@ exports.getUserInfo = function(req, res) {
                     res.status(200).json(users);
                 });
             } else {
-                res.status(401).send('Unauthorized operation');
+                res.status(401).send(messages.401.unauthAcc);
             }
 		});
 	} else {
-		res.status(400).send('Invalid query parameter');
+		res.status(400).send(messages.400.invalidQueryParam);
 	}
 };
 
@@ -89,6 +89,6 @@ exports.update = function(req, res) {
 			res.status(201).json(req.user.clean());
 		});
 	} else {
-		res.status(403).send('Forbidden operation');
+		res.status(403).send(messages.403.forbiddenOp);
 	}
 };

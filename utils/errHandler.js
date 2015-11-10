@@ -1,10 +1,12 @@
+messages = require('./messages');
+
 exports.ErrMsg = function(statCode, msg) {
     this.statCode = statCode;
     this.msg = msg;
 };
 
 exports.getErrMsg = function(err, duplicateMsg) {
-    var msg = 'Something went wrong',
+    var msg = messages.500.somethingWentWrong,
         statCode = 500;
 
     if (err.code) {
