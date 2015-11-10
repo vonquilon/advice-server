@@ -71,6 +71,23 @@ UserSchema.methods.genAccTokAndSave = function(cb) {
 	this.save(cb);
 };
 
+UserSchema.methods.validateAccTok = function(accessToken) {
+    return this.accessToken === accessToken;
+};
+
+UserSchema.methods.isAdmin = function() {
+    return this.role === 'admin';
+};
+
+UserSchema.methods.clean = function() {
+    delete this.role;
+    delete this.provider;
+    delete this.salt;
+    delete this.password;
+
+    return this;
+};
+
 UserSchema.statics.findByUsername = function(username, select, cb) {
     this.findOne({ username: username }, select, cb);
 };

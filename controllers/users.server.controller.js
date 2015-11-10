@@ -2,16 +2,7 @@ var User = require('mongoose').model('User'),
 	errHandler = require('../utils/errHandler'),
 	duplicateMsg = 'Username already exists';
 
-function cleanUser(user) {
-	delete user.role;
-	delete user.provider;
-	delete user.salt;
-	delete user.password;
-
-	return user;
-}
-
-exports.create = function(req, res, next) {
+exports.create = function(req, res) {
 	var user = new User(req.body);
 
 	user.provider = 'local';
@@ -19,7 +10,7 @@ exports.create = function(req, res, next) {
 	user.genAccTokAndSave(function(err) {
 		errHandler.handleErr(duplicateMsg, err, res);
 				
-		res.status(201).json(cleanUser(user));
+		res.status(201).json(user.clean());
 	});
 };
 
@@ -53,7 +44,7 @@ exports.getUserInfo = function(req, res) {
 		User.findById(req.query.userId, 'role accessToken', function(err, user) {
 			errHandler.handleErr(undefined, err, res);
 
-            if (user.accessToken === req.query.accessToken && user.role === 'admin') {
+            if (user.validateAccTok(query.accessToken) && user.isAdmin()) {
                 User.find({}, function (err, users) {
                     errHandler.handleErr(undefined, err, res);
 
@@ -95,7 +86,7 @@ exports.update = function(req, res) {
 		req.user.save(function(err) {
 			errHandler.handleErr(undefined, err, res);
 
-			res.status(201).json(cleanUser(req.user));
+			res.status(201).json(req.user.clean());
 		});
 	} else {
 		res.status(403).send('Forbidden operation');
