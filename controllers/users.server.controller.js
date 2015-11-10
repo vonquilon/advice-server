@@ -16,7 +16,7 @@ exports.create = function(req, res) {
 
 exports.signin = function(req, res) {
 	User.findByUsername(req.body.username, '_id email username created accessToken', function(err, user) {
-		errHandler.handleErr(duplicateMsg, err, res);
+		errHandler.handleErr(undefined, err, res);
 
 		if (!user) {
 			res.status(404).send('Unknown username');
@@ -26,7 +26,7 @@ exports.signin = function(req, res) {
 		}
 
 		user.genAccTokAndSave(function(err) {
-			errHandler.handleErr(duplicateMsg, err, res);
+			errHandler.handleErr(undefined, err, res);
 
 			res.status(200).json(user);
 		});

@@ -88,8 +88,8 @@ UserSchema.methods.clean = function() {
     return this;
 };
 
-UserSchema.statics.findByUsername = function(username, select, cb) {
-    this.findOne({ username: username }, select, cb);
+UserSchema.statics.findByUsername = function(username) {
+    return this.findOne({ username: username }, arguments);
 };
 
 mongoose.model('User', UserSchema);
