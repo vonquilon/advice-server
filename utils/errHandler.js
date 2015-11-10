@@ -3,7 +3,7 @@ exports.ErrMsg = function(statCode, msg) {
     this.msg = msg;
 };
 
-exports.getErrMsg = function(duplicateMsg, err) {
+exports.getErrMsg = function(err, duplicateMsg) {
     var msg = 'Something went wrong',
         statCode = 500;
 
@@ -11,9 +11,11 @@ exports.getErrMsg = function(duplicateMsg, err) {
         switch (err.code) {
             case 11000:
             case 11001:
-                msg = duplicateMsg;
-                statCode = 409;
-                break;
+                if (duplicateMsg !== undefined) {
+                    msg = duplicateMsg;
+                    statCode = 409;
+                    break;
+                }
         }
     } else {
         for (var errName in err.errors) {
@@ -27,9 +29,9 @@ exports.getErrMsg = function(duplicateMsg, err) {
     return new exports.ErrMsg(statCode, msg);
 };
 
-exports.handleErr = function(duplicateMsg, err, res) {
+exports.handleErr = function(err, res, duplicateMsg) {
     if (err) {
-        var errMsg = exports.getErrMsg(duplicateMsg, err);
+        var errMsg = exports.getErrMsg(err, duplicateMsg);
         res.status(errMsg.statCode).send(errMsg.msg);
     }
 };

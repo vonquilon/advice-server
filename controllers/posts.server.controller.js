@@ -5,18 +5,18 @@ var mongoose = require('mongoose'),
     duplicateMsg = 'Post already exists';
 
 exports.createPost = function(req, res) {
-    if (req.query.accessToken) {
-        User.findOne({ accessToken: req.query.accessToken }, '_id', function(err, user) {
-            errHandler.handleErr(undefined, err, res);
+    if (req.query.accessToken && req.query.userId) {
+        User.findById(req.query.userId, 'accessToken', function(err, user) {
+            errHandler.handleErr(err, res);
 
-            if (!user || user._id !== req.body._id) {
+            if (!user || !user.validateAccTok(req.query.accessToken)) {
                 res.status(401).send('Unauthorized access');
             }
 
             var post = new Post(req.body);
 
             post.save(function(err) {
-                errHandler.handleErr(duplicateMsg, err, res);
+                errHandler.handleErr(err, res, duplicateMsg);
 
                 res.status(201).json(post);
             });
@@ -55,7 +55,7 @@ exports.listPosts = function(req, res) {
 
     query.sort(sortOrder + sortBy)
         .exec(function(err, posts) {
-            errHandler.handleErr(undefined, err, res);
+            errHandler.handleErr(err, res);
 
 		    res.status(200).json(posts);
 	    });
