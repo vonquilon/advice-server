@@ -10,7 +10,8 @@ module.exports = {
 		forbiddenOp: 'Forbidden operation'
 	},
 	_404: {
-		unknownUsrNam: 'Unknown username'
+		unknownUsrNam: 'Unknown username',
+		usrNotFound: 'User not found'
 	},
 	_409: {
 		usernameDuplicateMsg: 'Username already exists',

@@ -33,18 +33,38 @@ exports.signin = function(req, res) {
 	});
 };
 
+exports.signout = function(req, res) {
+	User.findById(req.body._id, function(err, user) {
+		errHandler.handleErr(err, res);
+
+		if (user && user.validateAccTok(req.body.accessToken)) {
+			user.resetAccTokAndSave(function(err) {
+				errHandler.handleErr(err, res);
+
+				res.status(204).end();
+			});
+		} else {
+			res.status(401).send(messages._401.unauthAcc);
+		}
+	});
+};
+
 exports.getUserInfo = function(req, res) {
 	if (req.query.username) {
 		User.findByUsername(req.query.username, 'email username created', function(err, user) {
 			errHandler.handleErr(err, res);
 
-			res.status(200).json(user);
+			if (user) {
+				res.status(200).json(user);
+			} else {
+				res.status(404).send(messages._404.unknownUsrNam);
+			}
 		});
-	} else if(req.query.accessToken && req.query.userId) {
+	} else if(req.query.userId) {
 		User.findById(req.query.userId, 'role accessToken', function(err, user) {
 			errHandler.handleErr(err, res);
 
-            if (user.validateAccTok(query.accessToken) && user.isAdmin()) {
+            if (user && user.validateAccTok(query.accessToken) && user.isAdmin()) {
                 User.find({}, function (err, users) {
                     errHandler.handleErr(err, res);
 
@@ -69,32 +89,36 @@ exports.userById = function(req, res, next, id) {
 };
 
 exports.update = function(req, res) {
-	var updated = false;
+	if (req.user && req.user.validateAccTok(req.query.accessToken)) {
+		var updated = false;
 
-	for (var key in req.body) {
-		if (req.body.hasOwnProperty(key)) {
-			switch(key) {
-				case 'email':
-				case 'password':
-					req.user[key] = req.body[key];
-					updated = true;
+		for (var key in req.body) {
+			if (req.body.hasOwnProperty(key)) {
+				switch(key) {
+					case 'email':
+					case 'password':
+						req.user[key] = req.body[key];
+						updated = true;
+				}
 			}
 		}
-	}
 
-	if (updated) {
-		req.user.save(function(err) {
-			errHandler.handleErr(err, res);
+		if (updated) {
+			req.user.save(function(err) {
+				errHandler.handleErr(err, res);
 
-			res.status(201).json(req.user.clean());
-		});
+				res.status(201).json(req.user.clean());
+			});
+		} else {
+			res.status(403).send(messages._403.forbiddenOp);
+		}
 	} else {
-		res.status(403).send(messages._403.forbiddenOp);
+		res.status(401).send(messages._401.unauthAcc);
 	}
 };
 
 exports.delete = function(req, res) {
-    if (req.user.validateAccTok(req.query.accessToken)) {
+    if (req.user && req.user.validateAccTok(req.query.accessToken)) {
         req.user.remove(function(err) {
             errHandler.handleErr(err, res);
 

@@ -71,6 +71,12 @@ UserSchema.methods.genAccTokAndSave = function(cb) {
 	this.save(cb);
 };
 
+UserSchema.methods.resetAccTokAndSave = function(cb) {
+	this.accessToken = '';
+
+	this.save(cb);
+};
+
 UserSchema.methods.validateAccTok = function(accessToken) {
     return this.accessToken === accessToken;
 };
