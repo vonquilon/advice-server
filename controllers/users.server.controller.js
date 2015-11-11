@@ -8,7 +8,7 @@ exports.create = function(req, res) {
 	user.provider = 'local';
 
 	user.genAccTokAndSave(function(err) {
-		errHandler.handleErr(err, res, messages.409.usernameDuplicateMsg);
+		errHandler.handleErr(err, res, messages._409.usernameDuplicateMsg);
 				
 		res.status(201).json(user.clean());
 	});
@@ -19,10 +19,10 @@ exports.signin = function(req, res) {
 		errHandler.handleErr(err, res);
 
 		if (!user) {
-			res.status(404).send(messages.404.unknownUsrNam);
+			res.status(404).send(messages._404.unknownUsrNam);
 		}
 		if (!user.authenticate(req.body.password)) {
-			res.status(401).send(messages.401.wrongPassword);
+			res.status(401).send(messages._401.wrongPassword);
 		}
 
 		user.genAccTokAndSave(function(err) {
@@ -51,11 +51,11 @@ exports.getUserInfo = function(req, res) {
                     res.status(200).json(users);
                 });
             } else {
-                res.status(401).send(messages.401.unauthAcc);
+                res.status(401).send(messages._401.unauthAcc);
             }
 		});
 	} else {
-		res.status(400).send(messages.400.invalidQueryParam);
+		res.status(400).send(messages._400.invalidQueryParam);
 	}
 };
 
@@ -89,6 +89,18 @@ exports.update = function(req, res) {
 			res.status(201).json(req.user.clean());
 		});
 	} else {
-		res.status(403).send(messages.403.forbiddenOp);
+		res.status(403).send(messages._403.forbiddenOp);
 	}
+};
+
+exports.delete = function(req, res) {
+    if (req.user.validateAccTok(req.query.accessToken)) {
+        req.user.remove(function(err) {
+            errHandler.handleErr(err, res);
+
+            res.status(204).end();
+        });
+    } else {
+        res.status(401).send(messages._401.unauthAcc);
+    }
 };

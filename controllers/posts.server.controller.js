@@ -10,7 +10,7 @@ exports.createPost = function(req, res) {
             errHandler.handleErr(err, res);
 
             if (!user || !user.validateAccTok(req.query.accessToken)) {
-                res.status(401).send(messages.401.unauthAcc);
+                res.status(401).send(messages._401.unauthAcc);
             }
 
             var post = new Post(req.body);
@@ -22,7 +22,7 @@ exports.createPost = function(req, res) {
             });
         });
     } else {
-        res.status(400).send(messages.400.invalidQueryParam);
+        res.status(400).send(messages._400.invalidQueryParam);
     }
 };
 
