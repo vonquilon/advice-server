@@ -20,5 +20,16 @@ module.exports = {
 	},
 	_500: {
 		somethingWentWrong: 'Something went wrong'
-	}
+	},
+	schema: {
+        required: '{PATH} is required',
+        alreadyExists: '{PATH} "{VALUE}" already exists',
+        invalid: 'invalid {PATH} "{VALUE}"',
+        maxlength: '{PATH} cannot exceed {MAXLENGTH} characters',
+        minlength: '{PATH} must contain at least {MINLENGTH} characters',
+        users: {
+            pwdlength: 'passwords should be between 8 and 16 characters',
+            invalidPwd: 'passwords should contain at least 1 number'
+        }
+    }
 };

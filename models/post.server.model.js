@@ -1,21 +1,22 @@
 var mongoose = require('mongoose'),
-	Schema = mongoose.Schema;
+	Schema = mongoose.Schema,
+    messages = require('../utils/messages');
 
 var PostSchema = new Schema({
 	content: {
 		type: String,
-		required: 'Content is required',
+		required: messages.schema.required,
 		trim: true
 	},
 	category: {
 		type: String,
 		enum: ['Relationships', 'Financial', 'Mental Health', 'Jobs', 'Depression', 'Sexism', 'Racism', 'Physical Health', 'Reply'],
-		required: 'Category is required'
+		required: messages.schema.required
 	},
 	author: {
 		type: Schema.Types.ObjectId,
 		ref: 'User',
-		required: 'Author is required'
+		required: messages.schema.required
 	},
 	replyTo: {
 		type: Schema.Types.ObjectId,
