@@ -9,6 +9,7 @@ exports.create = function(req, res) {
 
 	user.genAccTokAndSave(function(err) {
 		errHandler.handleErr(err, res, function() {
+			console.log(user);
 			res.status(201).json(user.clean());
 		}, messages._409.usernameDuplicateMsg);
 	});

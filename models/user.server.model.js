@@ -1,12 +1,14 @@
 var mongoose = require('mongoose'),
 	Schema = mongoose.Schema,
+	uniqueValidator = require('mongoose-unique-validator'),
 	security = require('../utils/security');
 
 var UserSchema = new Schema({
 	email: {
 		type: String,
 		trim: true,
-		unique: 'Email already exists',
+		unique: true,
+		uniqueCaseInsensitive: true,
 		required: 'Email is required',
 		match: [/.+\@.+\..+/, 'Invalid email address'],
 		maxlength: [50, 'Email cannot exceed {MAXLENGTH} characters']
@@ -14,8 +16,9 @@ var UserSchema = new Schema({
 	username: {
 		type: String,
 		trim: true,
-		unique: 'Username already exists',
-		required: 'Username is required',
+		unique: true,
+		uniqueCaseInsensitive: true,
+		required: '{PATH} is required',
 		minlength: [2, 'Username must contain at least {MINLENGTH} characters'],
 		maxlength: [30, 'Username cannot exceed {MAXLENGTH} characters']
 	},
@@ -86,16 +89,18 @@ UserSchema.methods.isAdmin = function() {
 };
 
 UserSchema.methods.clean = function() {
-    delete this.role;
-    delete this.provider;
-    delete this.salt;
-    delete this.password;
-
-    return this;
+    return {
+    	_id: this._id,
+    	email: this.email,
+    	username: this.username,
+    	accessToken: this.accessToken,
+    	created: this.created
+    };
 };
 
 UserSchema.statics.findByUsername = function(username) {
     return this.findOne({ username: username }, arguments);
 };
 
+UserSchema.plugin(uniqueValidator, { message: '{PATH} "{VALUE}" already exists' });
 mongoose.model('User', UserSchema);
