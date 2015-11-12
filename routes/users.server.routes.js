@@ -1,9 +1,10 @@
 var users = require('../controllers/users.server.controller');
 
 module.exports = function(app) {
-	app.post('/signup', users.create);
-
-	app.post('/signin', user.signin);
+	app.route('/register')
+		.post(users.create)
+		.get(users.signin)
+		.put(users.signout);
 
 	app.get('/users', users.getUserInfo);
 

@@ -8,9 +8,9 @@ exports.create = function(req, res) {
 	user.provider = 'local';
 
 	user.genAccTokAndSave(function(err) {
-		errHandler.handleErr(err, res, messages._409.usernameDuplicateMsg);
-				
-		res.status(201).json(user.clean());
+		errHandler.handleErr(err, res, function() {
+			res.status(201).json(user.clean());
+		}, messages._409.usernameDuplicateMsg);
 	});
 };
 

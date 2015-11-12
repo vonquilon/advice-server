@@ -6,10 +6,11 @@ exports.ErrMsg = function(statCode, msg) {
 };
 
 exports.getErrMsg = function(err, duplicateMsg) {
-    var msg = messages.500.somethingWentWrong,
+    var msg = messages._500.somethingWentWrong,
         statCode = 500;
 
-    if (err.code) {
+    /*if (err.code) {
+        console.log(err.code);
         switch (err.code) {
             case 11000:
             case 11001:
@@ -19,21 +20,23 @@ exports.getErrMsg = function(err, duplicateMsg) {
                     break;
                 }
         }
-    } else {
+    } else {*/
         for (var errName in err.errors) {
             if (err.errors[errName].message) {
                 msg = err.errors[errName].message;
                 statCode = 409;
             }
         }
-    }
+    //}
 
     return new exports.ErrMsg(statCode, msg);
 };
 
-exports.handleErr = function(err, res, duplicateMsg) {
+exports.handleErr = function(err, res, cb, duplicateMsg) {
     if (err) {
         var errMsg = exports.getErrMsg(err, duplicateMsg);
         res.status(errMsg.statCode).send(errMsg.msg);
+    } else {
+        cb();
     }
 };
