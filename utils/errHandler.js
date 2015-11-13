@@ -5,38 +5,25 @@ exports.ErrMsg = function(statCode, msg) {
     this.msg = msg;
 };
 
-exports.getErrMsg = function(err, duplicateMsg) {
+exports.getErrMsg = function(err) {
     var msg = messages._500.somethingWentWrong,
         statCode = 500;
 
-    /*if (err.code) {
-        console.log(err.code);
-        switch (err.code) {
-            case 11000:
-            case 11001:
-                if (duplicateMsg !== undefined) {
-                    msg = duplicateMsg;
-                    statCode = 409;
-                    break;
-                }
+    for (var errName in err.errors) {
+        if (err.errors[errName].message) {
+            msg = err.errors[errName].message;
+            statCode = 409;
         }
-    } else {*/
-        for (var errName in err.errors) {
-            if (err.errors[errName].message) {
-                msg = err.errors[errName].message;
-                statCode = 409;
-            }
-        }
-    //}
+    }
 
-    return new exports.ErrMsg(statCode, msg);
+    return new this.ErrMsg(statCode, msg);
 };
 
-exports.handleErr = function(err, res, cb, duplicateMsg) {
+exports.handleErr = function(err, res, cb) {
     if (err) {
-        var errMsg = exports.getErrMsg(err, duplicateMsg);
+        var errMsg = this.getErrMsg(err);
         res.status(errMsg.statCode).send(errMsg.msg);
-    } else {
+    } else if (cb) {
         cb();
     }
 };

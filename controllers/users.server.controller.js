@@ -16,20 +16,20 @@ exports.create = function(req, res) {
 };
 
 exports.signin = function(req, res) {
-	User.findByUsername(req.body.username, '_id email username created accessToken', function(err, user) {
-		errHandler.handleErr(err, res);
-
-		if (!user) {
+	User.findByUsername(req.query.username, '_id email username created accessToken', function(err, user) {
+		errHandler.handleErr(err, res, function() {
+			if (!user) {
 			res.status(404).send(messages._404.unknownUsrNam);
-		}
-		if (!user.authenticate(req.body.password)) {
-			res.status(401).send(messages._401.wrongPassword);
-		}
+			}
+			if (!user.authenticate(req.query.password)) {
+				res.status(401).send(messages._401.wrongPassword);
+			}
 
-		user.genAccTokAndSave(function(err) {
-			errHandler.handleErr(err, res);
-
-			res.status(200).json(user);
+			user.genAccTokAndSave(function(err) {
+				errHandler.handleErr(err, res, function() {
+					res.status(200).json(user);
+				});
+			});
 		});
 	});
 };
