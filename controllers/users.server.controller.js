@@ -34,17 +34,17 @@ exports.signin = function(req, res) {
 
 exports.signout = function(req, res) {
 	User.findById(req.body._id, function(err, user) {
-		errHandler.handleErr(err, res);
-
-		if (user && user.validateAccTok(req.body.accessToken)) {
-			user.resetAccTokAndSave(function(err) {
-				errHandler.handleErr(err, res);
-
-				res.status(204).end();
-			});
-		} else {
-			res.status(401).send(messages._401.unauthAcc);
-		}
+		errHandler.handleErr(err, res, function() {
+            if (user && user.validateAccTok(req.body.accessToken)) {
+                user.genAccTokAndSave(true, {validateBeforeSave: false}, function(err) {
+                    errHandler.handleErr(err, res, function() {
+                        res.status(204).end();
+                    });
+                });
+            } else {
+                res.status(401).send(messages._401.unauthAcc);
+            }
+		});
 	});
 };
 

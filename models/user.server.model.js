@@ -67,18 +67,20 @@ UserSchema.methods.authenticate = function(password) {
 	return this.password === this.hashPassword(password);
 };
 
-UserSchema.methods.genAccTokAndSave = function() {
-	if (this.email && this.username) {
-		this.accessToken = security.genHmac(security.genRandomStr(), this.email, this.username);
-	}
+UserSchema.methods.genAccTokAndSave = function(reset, options, cb) {
+	if (typeof reset == 'boolean') {
+        this.accessToken = '';
+    } else if (this.email && this.username) {
+        cb = options;
+        options = reset;
+        this.accessToken = security.genHmac(security.genRandomStr(), this.email, this.username);
+    }
 
-	return this.save.apply(this, arguments);
-};
-
-UserSchema.methods.resetAccTokAndSave = function(cb) {
-	this.accessToken = '';
-
-	this.save(cb);
+    if (cb) {
+        return this.save(options, cb);
+    } else {
+        return this.save(options);
+    }
 };
 
 UserSchema.methods.validateAccTok = function(accessToken) {
