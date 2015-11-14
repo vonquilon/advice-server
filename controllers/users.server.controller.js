@@ -16,7 +16,7 @@ exports.create = function(req, res) {
 };
 
 exports.signin = function(req, res) {
-	User.findByUsername(req.query.username, '_id email username created accessToken', function(err, user) {
+	User.findByUsername(req.query.username, function(err, user) {
 		errHandler.handleErr(err, res, function() {
 			if (!user) {
 			res.status(404).send(messages._404.unknownUsrNam);
@@ -25,9 +25,11 @@ exports.signin = function(req, res) {
 				res.status(401).send(messages._401.wrongPassword);
 			}
 
-			user.genAccTokAndSave(function(err) {
+			console.log(user);
+
+			user.genAccTokAndSave(false, function(err) {
 				errHandler.handleErr(err, res, function() {
-					res.status(200).json(user);
+					res.status(200).json(user.clean());
 				});
 			});
 		});

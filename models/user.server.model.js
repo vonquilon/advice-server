@@ -52,6 +52,7 @@ var UserSchema = new Schema({
 
 UserSchema.pre('save', function(next) {
 	if (this.password) {
+		console.log('Here at pre save');
 		this.salt = security.genRandomStr();
 		this.password = this.hashPassword(this.password);
 	}
@@ -67,12 +68,14 @@ UserSchema.methods.authenticate = function(password) {
 	return this.password === this.hashPassword(password);
 };
 
-UserSchema.methods.genAccTokAndSave = function(cb) {
+UserSchema.methods.genAccTokAndSave = function() {
+	console.log('Here at genAcc');
+	console.log(arguments);
 	if (this.email && this.username) {
 		this.accessToken = security.genHmac(security.genRandomStr(), this.email, this.username);
 	}
 
-	this.save(cb);
+	this.save.apply(this, arguments);
 };
 
 UserSchema.methods.resetAccTokAndSave = function(cb) {
@@ -100,7 +103,8 @@ UserSchema.methods.clean = function() {
 };
 
 UserSchema.statics.findByUsername = function(username) {
-    return this.findOne({ username: username }, arguments);
+	arguments[0] = { username: username };
+    return this.findOne.apply(this, arguments);
 };
 
 UserSchema.plugin(uniqueValidator, { message: messages.schema.alreadyExists });
