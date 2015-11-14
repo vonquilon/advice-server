@@ -9,7 +9,6 @@ exports.create = function(req, res) {
 
 	user.genAccTokAndSave(function(err) {
 		errHandler.handleErr(err, res, function() {
-			console.log(user);
 			res.status(201).json(user.clean());
 		}, messages._409.usernameDuplicateMsg);
 	});
@@ -19,19 +18,16 @@ exports.signin = function(req, res) {
 	User.findByUsername(req.query.username, function(err, user) {
 		errHandler.handleErr(err, res, function() {
 			if (!user) {
-			res.status(404).send(messages._404.unknownUsrNam);
-			}
-			if (!user.authenticate(req.query.password)) {
+				res.status(404).send(messages._404.unknownUsrNam);
+			} else if (!user.authenticate(req.query.password)) {
 				res.status(401).send(messages._401.wrongPassword);
-			}
-
-			console.log(user);
-
-			user.genAccTokAndSave(false, function(err) {
-				errHandler.handleErr(err, res, function() {
-					res.status(200).json(user.clean());
+			} else {
+				user.genAccTokAndSave({validateBeforeSave: false}, function(err) {
+					errHandler.handleErr(err, res, function() {
+						res.status(200).json(user.clean());
+					});
 				});
-			});
+			}
 		});
 	});
 };

@@ -51,8 +51,7 @@ var UserSchema = new Schema({
 });
 
 UserSchema.pre('save', function(next) {
-	if (this.password) {
-		console.log('Here at pre save');
+	if (this.password && !this.salt) {
 		this.salt = security.genRandomStr();
 		this.password = this.hashPassword(this.password);
 	}
@@ -69,13 +68,11 @@ UserSchema.methods.authenticate = function(password) {
 };
 
 UserSchema.methods.genAccTokAndSave = function() {
-	console.log('Here at genAcc');
-	console.log(arguments);
 	if (this.email && this.username) {
 		this.accessToken = security.genHmac(security.genRandomStr(), this.email, this.username);
 	}
 
-	this.save.apply(this, arguments);
+	return this.save.apply(this, arguments);
 };
 
 UserSchema.methods.resetAccTokAndSave = function(cb) {
