@@ -1,17 +1,17 @@
 module.exports = {
 	_400: {
-		invalidQueryParam: 'Invalid query parameter'
+		invalidQueryParam: 'invalid query parameter'
 	},
 	_401: {
-		wrongPassword: 'Wrong password',
-		unauthAcc: 'Unauthorized access'
+		wrongPassword: 'wrong password',
+		unauthAcc: 'unauthorized access'
 	},
 	_403: {
-		forbiddenOp: 'Forbidden operation'
+		forbiddenOp: 'forbidden operation'
 	},
 	_404: {
-		unknownUsrNam: 'Unknown username',
-		usrNotFound: 'User not found'
+		unknownUsrNam: 'unknown username',
+		usrNotFound: 'user not found'
 	},
 	_409: {
 		usernameDuplicateMsg: 'Username already exists',
@@ -19,7 +19,7 @@ module.exports = {
 		postDuplicateMsg: 'Post already exists'
 	},
 	_500: {
-		somethingWentWrong: 'Something went wrong'
+		somethingWentWrong: 'something went wrong'
 	},
 	schema: {
         required: '{PATH} is required',
