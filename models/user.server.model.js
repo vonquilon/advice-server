@@ -84,6 +84,7 @@ UserSchema.methods.genAccTokAndSave = function(reset, options, cb) {
 };
 
 UserSchema.methods.validateAccTok = function(accessToken) {
+	console.log(accessToken);
     return this.accessToken === accessToken;
 };
 

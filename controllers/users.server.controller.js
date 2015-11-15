@@ -51,27 +51,34 @@ exports.signout = function(req, res) {
 exports.getUserInfo = function(req, res) {
 	if (req.query.username) {
 		User.findByUsername(req.query.username, 'email username created', function(err, user) {
-			errHandler.handleErr(err, res);
-
-			if (user) {
-				res.status(200).json(user);
-			} else {
-				res.status(404).send(messages._404.unknownUsrNam);
-			}
+			errHandler.handleErr(err, res, function() {
+				if (user) {
+					res.status(200).json(user);
+				} else {
+					res.status(404).send(messages._404.unknownUsrNam);
+				}
+			});
 		});
 	} else if(req.query.userId) {
 		User.findById(req.query.userId, 'role accessToken', function(err, user) {
-			errHandler.handleErr(err, res);
-
-            if (user && user.validateAccTok(query.accessToken) && user.isAdmin()) {
-                User.find({}, function (err, users) {
-                    errHandler.handleErr(err, res);
-
-                    res.status(200).json(users);
-                });
-            } else {
-                res.status(401).send(messages._401.unauthAcc);
-            }
+			console.log('Here at findById');
+			errHandler.handleErr(err, res, function() {
+				console.log('First err handler');
+				console.log(user);
+				var goodAccTok = user.validateAccTok(req.query.accessToken);
+				console.log(goodAccTok);
+				var isAdmin = user.isAdmin();
+				console.log(isAdmin);
+				if (user && goodAccTok && isAdmin) {
+	                User.find({}, function (err, users) {
+	                    errHandler.handleErr(err, res, function() {
+	                    	res.status(200).json(users);
+	                    });
+	                });
+	            } else {
+	                res.status(401).send(messages._401.unauthAcc);
+	            }
+			});
 		});
 	} else {
 		res.status(400).send(messages._400.invalidQueryParam);
