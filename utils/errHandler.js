@@ -1,4 +1,4 @@
-messages = require('./messages');
+strings = require('./strings');
 
 exports.ErrMsg = function(statCode, msg) {
     this.statCode = statCode;
@@ -6,11 +6,11 @@ exports.ErrMsg = function(statCode, msg) {
 };
 
 exports.getErrMsg = function(err) {
-    var msg = messages._500.somethingWentWrong,
+    var msg = strings.statCode._500.somethingWentWrong,
         statCode = 500;
 
     for (var errName in err.errors) {
-        if (err.errors[errName].message) {
+        if (err.errors.hasOwnProperty(errName) && err.errors[errName].message) {
             msg = err.errors[errName].message;
             statCode = 409;
         }

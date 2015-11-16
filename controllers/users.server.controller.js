@@ -1,6 +1,6 @@
 var User = require('mongoose').model('User'),
 	errHandler = require('../utils/errHandler'),
-	messages = require('../utils/messages');
+	strings = require('../utils/strings');
 
 exports.create = function(req, res) {
 	var user = new User(req.body);
@@ -10,17 +10,17 @@ exports.create = function(req, res) {
 	user.genAccTokAndSave(function(err) {
 		errHandler.handleErr(err, res, function() {
 			res.status(201).json(user.clean());
-		}, messages._409.usernameDuplicateMsg);
+		}, strings.statCode._409.usernameDuplicateMsg);
 	});
 };
 
 exports.signin = function(req, res) {
-	User.findByUsername(req.query.username, function(err, user) {
+	User.findByUsername(req.get(strings.headerNames.username), function(err, user) {
 		errHandler.handleErr(err, res, function() {
 			if (!user) {
-				res.status(404).send(messages._404.unknownUsrNam);
-			} else if (!user.authenticate(req.query.password)) {
-				res.status(401).send(messages._401.wrongPassword);
+				res.status(404).send(strings.statCode._404.unknownUsrNam);
+			} else if (!user.authenticate(req.get(strings.headerNames.password))) {
+				res.status(401).send(strings.statCode._401.wrongPassword);
 			} else {
 				user.genAccTokAndSave({validateBeforeSave: false}, function(err) {
 					errHandler.handleErr(err, res, function() {
@@ -42,7 +42,7 @@ exports.signout = function(req, res) {
                     });
                 });
             } else {
-                res.status(401).send(messages._401.unauthAcc);
+                res.status(401).send(strings.statCode._401.unauthAcc);
             }
 		});
 	});
@@ -55,17 +55,17 @@ exports.getUserInfo = function(req, res) {
 				if (user) {
 					res.status(200).json(user);
 				} else {
-					res.status(404).send(messages._404.unknownUsrNam);
+					res.status(404).send(strings.statCode._404.unknownUsrNam);
 				}
 			});
 		});
-	} else if(req.query.userId) {
-		User.findById(req.query.userId, 'role accessToken', function(err, user) {
+	} else if(req.get(strings.headerNames.userId)) {
+		User.findById(req.get(strings.headerNames.userId), 'role accessToken', function(err, user) {
 			console.log('Here at findById');
 			errHandler.handleErr(err, res, function() {
 				console.log('First err handler');
 				console.log(user);
-				var goodAccTok = user.validateAccTok(req.query.accessToken);
+				var goodAccTok = user.validateAccTok(req.get(strings.headerNames.accessToken));
 				console.log(goodAccTok);
 				var isAdmin = user.isAdmin();
 				console.log(isAdmin);
@@ -76,12 +76,12 @@ exports.getUserInfo = function(req, res) {
 	                    });
 	                });
 	            } else {
-	                res.status(401).send(messages._401.unauthAcc);
+	                res.status(401).send(strings.statCode._401.unauthAcc);
 	            }
 			});
 		});
 	} else {
-		res.status(400).send(messages._400.invalidQueryParam);
+		res.status(400).send(strings.statCode._400.invalidQueryParam);
 	}
 };
 
@@ -116,10 +116,10 @@ exports.update = function(req, res) {
 				res.status(201).json(req.user.clean());
 			});
 		} else {
-			res.status(403).send(messages._403.forbiddenOp);
+			res.status(403).send(strings.statCode._403.forbiddenOp);
 		}
 	} else {
-		res.status(401).send(messages._401.unauthAcc);
+		res.status(401).send(strings.statCode._401.unauthAcc);
 	}
 };
 
@@ -131,6 +131,6 @@ exports.delete = function(req, res) {
             res.status(204).end();
         });
     } else {
-        res.status(401).send(messages._401.unauthAcc);
+        res.status(401).send(strings.statCode._401.unauthAcc);
     }
 };

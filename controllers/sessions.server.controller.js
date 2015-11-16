@@ -1,6 +1,6 @@
 var Session = require('mongoose').model('Session'),
 	errHandler = require('../utils/errHandler'),
-	messages = require('../utils/messages');
+	strings = require('../utils/strings');
 
 exports.createSession = function(res, req, next) {
 	var session = new Session(req.body);

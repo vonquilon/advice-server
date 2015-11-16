@@ -2,7 +2,7 @@ var mongoose = require('mongoose'),
 	Schema = mongoose.Schema,
 	uniqueValidator = require('mongoose-unique-validator'),
 	security = require('../utils/security'),
-	messages = require('../utils/messages');
+	strings = require('../utils/strings');
 
 var UserSchema = new Schema({
 	email: {
@@ -10,29 +10,29 @@ var UserSchema = new Schema({
 		trim: true,
 		unique: true,
 		uniqueCaseInsensitive: true,
-		required: messages.schema.required,
-		match: [/.+\@.+\..+/, messages.schema.invalid],
-		maxlength: [50, messages.schema.maxlength]
+		required: strings.schema.required,
+		match: [/.+\@.+\..+/, strings.schema.invalid],
+		maxlength: [50, strings.schema.maxlength]
 	},
 	username: {
 		type: String,
 		trim: true,
 		unique: true,
 		uniqueCaseInsensitive: true,
-		required: messages.schema.required,
-        match: [/(\.?[\w\-\_\'](\.(?!\.))?)+/, messages.schema.users.invalidUsrNam],
-		minlength: [2, messages.schema.minlength],
-		maxlength: [30, messages.schema.maxlength]
+		required: strings.schema.required,
+        match: [/(\.?[\w\-\_\'](\.(?!\.))?)+/, strings.schema.users.invalidUsrNam],
+		minlength: [2, strings.schema.minlength],
+		maxlength: [30, strings.schema.maxlength]
 	},
 	password: {
 		type: String,
-		required: messages.schema.required,
+		required: strings.schema.required,
 		validate: [
 			function(password) {
 				return password && password.length >= 6 && password.length <= 16;
-			}, messages.schema.users.pwdlength
+			}, strings.schema.users.pwdlength
 		],
-		match: [/.*[0-9]+.*/, messages.schema.users.invalidPwd]
+		match: [/.*[0-9]+.*/, strings.schema.users.invalidPwd]
 	},
 	role: {
 		type: String,
@@ -43,7 +43,7 @@ var UserSchema = new Schema({
 	salt: String,
 	provider: {
 		type: String,
-		required: messages.schema.required
+		required: strings.schema.required
 	},
 	created: {
 		type: Date,
@@ -108,5 +108,5 @@ UserSchema.statics.findByUsername = function(username) {
     return this.findOne.apply(this, arguments);
 };
 
-UserSchema.plugin(uniqueValidator, { message: messages.schema.alreadyExists });
+UserSchema.plugin(uniqueValidator, { message: strings.schema.alreadyExists });
 mongoose.model('User', UserSchema);

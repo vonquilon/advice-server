@@ -1,12 +1,12 @@
 var mongoose = require('mongoose'),
 	Schema = mongoose.Schema,
-	messages = require('../utils/messages');
+	strings = require('../utils/strings');
 
 var SessionSchema = new Schema({
 	user: {
 		type: Schema.Types.ObjectId,
 		ref: 'User',
-		required: messages.schema.required
+		required: strings.schema.required
 	},
 	lastUsed: {
 		type: Date,
