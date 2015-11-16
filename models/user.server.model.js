@@ -20,6 +20,7 @@ var UserSchema = new Schema({
 		unique: true,
 		uniqueCaseInsensitive: true,
 		required: messages.schema.required,
+        match: [/(\.?[\w\-\_\'](\.(?!\.))?)+/, messages.schema.users.invalidUsrNam],
 		minlength: [2, messages.schema.minlength],
 		maxlength: [30, messages.schema.maxlength]
 	},
