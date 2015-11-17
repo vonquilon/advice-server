@@ -10,7 +10,7 @@ exports.create = function(req, res) {
 	user.genAccTokAndSave(function(err) {
 		errHandler.handleErr(err, res, function() {
 			res.status(201).json(user.clean());
-		}, strings.statCode._409.usernameDuplicateMsg);
+		});
 	});
 };
 

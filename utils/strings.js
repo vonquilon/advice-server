@@ -38,7 +38,7 @@ module.exports = {
         users: {
             pwdlength: 'passwords should be between 8 and 16 characters',
             invalidPwd: 'passwords should contain at least 1 number',
-			invalidUsrNam: 'usernames can only contain [(a-z),(0-9),-,_,.]'
+			invalidUsrNam: "usernames can only contain [(a-z),(0-9),-,_,',.]"
         }
     }
 };
