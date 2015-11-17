@@ -59,17 +59,10 @@ exports.getUserInfo = function(req, res) {
 				}
 			});
 		});
-	} else if(req.get(strings.headerNames.userId)) {
+	} else if (req.get(strings.headerNames.userId)) {
 		User.findById(req.get(strings.headerNames.userId), 'role accessToken', function(err, user) {
-			console.log('Here at findById');
 			errHandler.handleErr(err, res, function() {
-				console.log('First err handler');
-				console.log(user);
-				var goodAccTok = user.validateAccTok(req.get(strings.headerNames.accessToken));
-				console.log(goodAccTok);
-				var isAdmin = user.isAdmin();
-				console.log(isAdmin);
-				if (user && goodAccTok && isAdmin) {
+				if (user && user.validateAccTok(req.get(strings.headerNames.accessToken)) && user.isAdmin()) {
 	                User.find({}, function (err, users) {
 	                    errHandler.handleErr(err, res, function() {
 	                    	res.status(200).json(users);

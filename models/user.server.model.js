@@ -20,7 +20,7 @@ var UserSchema = new Schema({
 		unique: true,
 		uniqueCaseInsensitive: true,
 		required: strings.schema.required,
-        match: [/(\.?[\w\-\'](\.(?!\.))?)+/g, strings.schema.users.invalidUsrNam],
+        match: [/^([\w\-\']|\.(?!\.))(\.?[\w\-\'])*([\w\-\']|\.)$/g, strings.schema.users.invalidUsrNam],
 		minlength: [2, strings.schema.minlength],
 		maxlength: [30, strings.schema.maxlength]
 	},
@@ -65,7 +65,7 @@ UserSchema.methods.hashPassword = function(password) {
 };
 
 UserSchema.methods.authenticate = function(password) {
-	return this.password === this.hashPassword(password);
+	return password ? this.password === this.hashPassword(password) : false;
 };
 
 UserSchema.methods.genAccTokAndSave = function(reset, options, cb) {
@@ -85,7 +85,6 @@ UserSchema.methods.genAccTokAndSave = function(reset, options, cb) {
 };
 
 UserSchema.methods.validateAccTok = function(accessToken) {
-	console.log(accessToken);
     return this.accessToken === accessToken;
 };
 
