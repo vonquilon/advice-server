@@ -80,33 +80,34 @@ exports.getUserInfo = function(req, res) {
 
 exports.userById = function(req, res, next, id) {
 	User.findById(id, function(err, user) {
-		errHandler.handleErr(err, res);
-
-		req.user = user;
-		next();
+		errHandler.handleErr(err, res, function() {
+			req.user = user;
+			next();
+		});
 	});
 };
 
 exports.update = function(req, res) {
-	if (req.user && req.user.validateAccTok(req.query.accessToken)) {
-		var updated = false;
+	if (req.user && req.user.validateAccTok(req.get(strings.headerNames.accessToken))) {
+		var paths = [];
 
 		for (var key in req.body) {
 			if (req.body.hasOwnProperty(key)) {
 				switch(key) {
-					case 'email':
 					case 'password':
+						req.user.salt = '';
+					case 'email':
 						req.user[key] = req.body[key];
-						updated = true;
+						paths.push(key);
 				}
 			}
 		}
 
-		if (updated) {
-			req.user.save(function(err) {
-				errHandler.handleErr(err, res);
-
-				res.status(201).json(req.user.clean());
+		if (paths.length > 0) {
+			errHandler.handleErr(req.user.validateSync(paths), res, function() {
+				req.user.save({validateBeforeSave: false}, function(err) {
+					res.status(201).json(req.user.clean());
+				});
 			});
 		} else {
 			res.status(403).send(strings.statCode._403.forbiddenOp);
