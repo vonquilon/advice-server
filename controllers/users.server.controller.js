@@ -89,7 +89,7 @@ exports.userById = function(req, res, next, id) {
 
 exports.update = function(req, res) {
 	if (req.user && req.user.validateAccTok(req.get(strings.headerNames.accessToken))) {
-		var paths = [];
+		var paths = ['password'];
 
 		for (var key in req.body) {
 			if (req.body.hasOwnProperty(key)) {

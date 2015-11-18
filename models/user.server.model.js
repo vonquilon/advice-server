@@ -29,7 +29,7 @@ var UserSchema = new Schema({
 		required: strings.schema.required,
 		validate: [
 			function(password) {
-				return password && password.length >= 6 && password.length <= 16;
+				return this.salt ? true : password && password.length >= 6 && password.length <= 16;
 			}, strings.schema.users.pwdlength
 		],
 		match: [/.*[0-9]+.*/, strings.schema.users.invalidPwd]

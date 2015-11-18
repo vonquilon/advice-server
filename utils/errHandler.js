@@ -21,6 +21,7 @@ exports.getErrMsg = function(err) {
 
 exports.handleErr = function(err, res, cb) {
     if (err) {
+        console.log(err);
         var errMsg = this.getErrMsg(err);
         res.status(errMsg.statCode).send(errMsg.msg);
     } else if (cb) {
