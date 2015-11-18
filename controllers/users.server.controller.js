@@ -106,7 +106,9 @@ exports.update = function(req, res) {
 		if (paths.length > 0) {
 			errHandler.handleErr(req.user.validateSync(paths), res, function() {
 				req.user.save({validateBeforeSave: false}, function(err) {
-					res.status(201).json(req.user.clean());
+					errHandler.handleErr(err, res, function() {
+                        res.status(201).json(req.user.clean());
+                    });
 				});
 			});
 		} else {
@@ -118,11 +120,11 @@ exports.update = function(req, res) {
 };
 
 exports.delete = function(req, res) {
-    if (req.user && req.user.validateAccTok(req.query.accessToken)) {
+    if (req.user && req.user.validateAccTok(req.get(strings.headerNames.accessToken))) {
         req.user.remove(function(err) {
-            errHandler.handleErr(err, res);
-
-            res.status(204).end();
+            errHandler.handleErr(err, res, function() {
+                res.status(204).end();
+            });
         });
     } else {
         res.status(401).send(strings.statCode._401.unauthAcc);
