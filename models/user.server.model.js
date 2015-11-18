@@ -29,6 +29,7 @@ var UserSchema = new Schema({
 		required: strings.schema.required,
 		validate: [
 			function(password) {
+				console.log(this.password);
 				return this.salt ? true : password && password.length >= 6 && password.length <= 16;
 			}, strings.schema.users.pwdlength
 		],
@@ -90,6 +91,14 @@ UserSchema.methods.validateAccTok = function(accessToken) {
 
 UserSchema.methods.isAdmin = function() {
     return this.role === 'admin';
+};
+
+UserSchema.methods.isSameEmail = function(email) {
+	if (typeof email == 'string') {
+		email = email.trim();
+	}
+
+	return this.email === email;
 };
 
 UserSchema.methods.clean = function() {

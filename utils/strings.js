@@ -23,7 +23,10 @@ module.exports = {
         _409: {
             usernameDuplicateMsg: 'Username already exists',
             sessionDuplicateMsg: 'Session already exists',
-            postDuplicateMsg: 'Post already exists'
+            postDuplicateMsg: 'Post already exists',
+            alreadyUsed: function(path) {
+                return "you're already using that " + path;
+            }
         },
         _500: {
             somethingWentWrong: 'something went wrong'
