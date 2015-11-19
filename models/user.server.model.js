@@ -52,17 +52,14 @@ var UserSchema = new Schema({
 	}
 });
 
-var genHashCb = function(next) {
+UserSchema.pre('save', function(next) {
 	if (this.password && !this.salt) {
 		this.salt = security.genRandomStr();
 		this.password = this.hashPassword(this.password);
 	}
 
 	next();
-};
-
-UserSchema.pre('save', genHashCb);
-UserSchema.pre('findByIdAndUpdate', genHashCb);
+});
 
 UserSchema.methods.hashPassword = function(password) {
 	return security.hashPassword(password, this.salt);
@@ -117,6 +114,16 @@ UserSchema.methods.clean = function() {
 UserSchema.statics.findByUsername = function(username) {
 	arguments[0] = { username: username };
     return this.findOne.apply(this, arguments);
+};
+
+UserSchema.statics.findByIdAndUpdateAndHashPwd = function() {
+	var doc = arguments[1];
+	if (doc.password) {
+		doc.salt = security.genRandomStr();
+		doc.password = security.hashPassword(doc.password, doc.salt);
+	}
+
+	return this.findByIdAndUpdate.apply(this, arguments);
 };
 
 UserSchema.plugin(uniqueValidator, { message: strings.schema.alreadyExists });

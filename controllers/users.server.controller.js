@@ -126,7 +126,7 @@ exports.update = function(req, res) {
 		}
 
 		if (doc.password || doc.email) {
-			User.findByIdAndUpdate(req.user._id, doc, { runValidators: true, context: 'query' }, function(err, user) {
+			User.findByIdAndUpdateAndHashPwd(req.user._id, doc, { runValidators: true, context: 'query' }, function(err, user) {
 				errHandler.handleErr(err, res, function() {
                 	res.status(201).json(user.clean());
             	});
