@@ -125,7 +125,22 @@ exports.update = function(req, res) {
 			}
 		}
 
-		if (doc.password || doc.email) {
+        var pwdSaved = false;
+
+		if (doc.password) {
+            req.user.password = doc.password;
+            req.user.save(function(err) {
+                errHandler.handleErr(err, res, function() {
+                    pwdSaved = true;
+                });
+            });
+        }
+
+        if (!pwdSaved) {
+            return;
+        }
+
+		if (doc.email) {
 			User.findByIdAndUpdateAndHashPwd(req.user._id, doc, { runValidators: true, context: 'query' }, function(err, user) {
 				errHandler.handleErr(err, res, function() {
                 	res.status(201).json(user.clean());
