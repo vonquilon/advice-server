@@ -90,36 +90,47 @@ exports.userById = function(req, res, next, id) {
 exports.update = function(req, res) {
 	if (req.user && req.user.validateAccTok(req.get(strings.headerNames.accessToken))) {
 		var doc = {},
-			err = false;
+			isSame;
 
 		for (var key in req.body) {
 			if (req.body.hasOwnProperty(key)) {
+				if (!isSame) {
+					console.log('instantiated');
+					isSame = function(testFunc) {
+						console.log(key);
+						if (testFunc.call(req.user, req.body[key])) {
+							res.status(409).send(strings.statCode._409.alreadyUsed(key));
+							return true;
+						}
+
+						doc[key] = req.body[key];
+						return false;
+					};
+				}
 				switch(key) {
 					case 'password':
-						if (user.authenticate(req.body[key])) {
-							err = true;
-							break;
+						console.log('password case');
+						if (isSame(req.user.authenticate)) {
+							return;
 						}
 
 						req.user.salt = '';
+						break;
 					case 'email':
-						if (user.isSameEmail(req.body[key])) {
-							err = true;
-							break;
+						console.log('email case');
+						if (isSame(req.user.isSameEmail)) {
+							return;
 						}
-
-						req.user[key] = req.body[key];
-						updated = true;
 				}
 			}
 		}
 
-		if (updated) {
-				req.user.validate(function(err) {
-					errHandler.handleErr(err, res, function() {
-                        res.status(201).json(req.user.clean());
-                    });
-				});
+		if (doc.password || doc.email) {
+			User.findByIdAndUpdate(req.user._id, doc, { runValidators: true, context: 'query' }, function(err, user) {
+				errHandler.handleErr(err, res, function() {
+                	res.status(201).json(user.clean());
+            	});
+			});
 		} else {
 			res.status(403).send(strings.statCode._403.forbiddenOp);
 		}

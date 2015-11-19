@@ -52,14 +52,17 @@ var UserSchema = new Schema({
 	}
 });
 
-UserSchema.pre('save', function(next) {
+var genHashCb = function(next) {
 	if (this.password && !this.salt) {
 		this.salt = security.genRandomStr();
 		this.password = this.hashPassword(this.password);
 	}
 
 	next();
-});
+};
+
+UserSchema.pre('save', genHashCb);
+UserSchema.pre('findByIdAndUpdate', genHashCb);
 
 UserSchema.methods.hashPassword = function(password) {
 	return security.hashPassword(password, this.salt);
