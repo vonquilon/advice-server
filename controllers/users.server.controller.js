@@ -125,27 +125,26 @@ exports.update = function(req, res) {
 			}
 		}
 
-        var pwdSaved = false;
+		var update = function() {
+            User.findOneAndUpdate({_id: req.user._id}, doc, { runValidators: true, context: 'query' }, function(err, user) {
+                errHandler.handleErr(err, res, function() {
+                    res.status(201).json(user.clean());
+                });
+            });
+        };
 
 		if (doc.password) {
             req.user.password = doc.password;
             req.user.save(function(err) {
                 errHandler.handleErr(err, res, function() {
-                    pwdSaved = true;
+                    if (doc.email) {
+                        delete doc.password;
+                        update();
+                    }
                 });
             });
-        }
-
-        if (!pwdSaved) {
-            return;
-        }
-
-		if (doc.email) {
-			User.findByIdAndUpdateAndHashPwd(req.user._id, doc, { runValidators: true, context: 'query' }, function(err, user) {
-				errHandler.handleErr(err, res, function() {
-                	res.status(201).json(user.clean());
-            	});
-			});
+        } else if (doc.email) {
+            update();
 		} else {
 			res.status(403).send(strings.statCode._403.forbiddenOp);
 		}

@@ -116,15 +116,5 @@ UserSchema.statics.findByUsername = function(username) {
     return this.findOne.apply(this, arguments);
 };
 
-UserSchema.statics.findByIdAndUpdateAndHashPwd = function() {
-	var doc = arguments[1];
-	if (doc.password) {
-		doc.salt = security.genRandomStr();
-		doc.password = security.hashPassword(doc.password, doc.salt);
-	}
-
-	return this.findByIdAndUpdate.apply(this, arguments);
-};
-
 UserSchema.plugin(uniqueValidator, { message: strings.schema.alreadyExists });
 mongoose.model('User', UserSchema);
