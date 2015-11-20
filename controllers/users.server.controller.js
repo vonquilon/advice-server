@@ -89,62 +89,29 @@ exports.userById = function(req, res, next, id) {
 
 exports.update = function(req, res) {
 	if (req.user && req.user.validateAccTok(req.get(strings.headerNames.accessToken))) {
-		var doc = {},
-			isSame;
+		var updated;
 
 		for (var key in req.body) {
 			if (req.body.hasOwnProperty(key)) {
-				if (!isSame) {
-					console.log('instantiated');
-					isSame = function(testFunc) {
-						console.log(key);
-						if (testFunc.call(req.user, req.body[key])) {
-							res.status(409).send(strings.statCode._409.alreadyUsed(key));
-							return true;
-						}
-
-						doc[key] = req.body[key];
-						return false;
-					};
-				}
 				switch(key) {
 					case 'password':
 						console.log('password case');
-						if (isSame(req.user.authenticate)) {
-							return;
-						}
-
 						req.user.salt = '';
-						break;
 					case 'email':
 						console.log('email case');
-						if (isSame(req.user.isSameEmail)) {
-							return;
-						}
+						req.user[key] = req.body[key];
+						updated = true;
 				}
 			}
 		}
 
-		var update = function() {
-            User.findOneAndUpdate({_id: req.user._id}, doc, { runValidators: true, context: 'query' }, function(err, user) {
-                errHandler.handleErr(err, res, function() {
-                    res.status(201).json(user.clean());
-                });
-            });
-        };
-
-		if (doc.password) {
-            req.user.password = doc.password;
+		if (updated) {
+			console.log(req.user);
             req.user.save(function(err) {
-                errHandler.handleErr(err, res, function() {
-                    if (doc.email) {
-                        delete doc.password;
-                        update();
-                    }
-                });
+            	errHandler.handleErr(err, res, function() {
+            		res.status(201).json(req.user.clean());
+            	});
             });
-        } else if (doc.email) {
-            update();
 		} else {
 			res.status(403).send(strings.statCode._403.forbiddenOp);
 		}

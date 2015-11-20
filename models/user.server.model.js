@@ -1,6 +1,5 @@
 var mongoose = require('mongoose'),
 	Schema = mongoose.Schema,
-	uniqueValidator = require('mongoose-unique-validator'),
 	security = require('../utils/security'),
 	strings = require('../utils/strings');
 
@@ -9,7 +8,6 @@ var UserSchema = new Schema({
 		type: String,
 		trim: true,
 		unique: true,
-		uniqueCaseInsensitive: true,
 		required: strings.schema.required,
 		match: [/.+\@.+\..+/, strings.schema.invalid],
 		maxlength: [50, strings.schema.maxlength]
@@ -18,7 +16,6 @@ var UserSchema = new Schema({
 		type: String,
 		trim: true,
 		unique: true,
-		uniqueCaseInsensitive: true,
 		required: strings.schema.required,
         match: [/^([\w\-\']|\.(?!\.))(\.?[\w\-\'])*([\w\-\']|\.)$/g, strings.schema.users.invalidUsrNam],
 		minlength: [2, strings.schema.minlength],
@@ -116,5 +113,4 @@ UserSchema.statics.findByUsername = function(username) {
     return this.findOne.apply(this, arguments);
 };
 
-UserSchema.plugin(uniqueValidator, { message: strings.schema.alreadyExists });
 mongoose.model('User', UserSchema);

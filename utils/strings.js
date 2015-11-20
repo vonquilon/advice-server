@@ -26,6 +26,13 @@ module.exports = {
             postDuplicateMsg: 'Post already exists',
             alreadyUsed: function(path) {
                 return "you're already using that " + path;
+            },
+            alreadyExists: function(path, val) {
+                var msg = '';
+                msg += path ? path : '{PATH}';
+                msg += ' ';
+                msg += val ? val : '"{VALUE}"';
+                return msg += ' already exists';
             }
         },
         _500: {
