@@ -89,27 +89,26 @@ exports.userById = function(req, res, next, id) {
 
 exports.update = function(req, res) {
 	if (req.user && req.user.validateAccTok(req.get(strings.headerNames.accessToken))) {
-		var updated;
+		var paths = [];
 
 		for (var key in req.body) {
 			if (req.body.hasOwnProperty(key)) {
 				switch(key) {
 					case 'password':
-						console.log('password case');
 						req.user.salt = '';
 					case 'email':
-						console.log('email case');
 						req.user[key] = req.body[key];
-						updated = true;
+						paths.push(key);
 				}
 			}
 		}
 
-		if (updated) {
-			console.log(req.user);
-            req.user.save(function(err) {
-            	errHandler.handleErr(err, res, function() {
-            		res.status(201).json(req.user.clean());
+		if (paths.length > 0) {
+			errHandler.handleErr(req.user.validateSync(paths), res, function() {
+            	req.user.save({validateBeforeSave: false}, function(err) {
+            		errHandler.handleErr(err, res, function() {
+            			res.status(201).json(req.user.clean());
+            		});
             	});
             });
 		} else {

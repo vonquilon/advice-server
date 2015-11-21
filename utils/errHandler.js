@@ -13,12 +13,8 @@ exports.getErrMsg = function(err) {
         switch (err.code) {
             case 11000:
             case 11001:
-                console.log('----START----');
-                console.log(err.message);
                 var path = err.message.match(/\$.*\_/g)[0];
-                console.log(path);
                 var val = err.message.match(/\".*\"/g)[0];
-                console.log(val);
                 msg = strings.statCode._409.alreadyExists(
                     path.substring(1, path.length - 1), val
                 );
@@ -38,7 +34,6 @@ exports.getErrMsg = function(err) {
 
 exports.handleErr = function(err, res, cb) {
     if (err) {
-        console.log(err);
         var errMsg = this.getErrMsg(err);
         res.status(errMsg.statCode).send(errMsg.msg);
     } else if (cb) {

@@ -26,7 +26,6 @@ var UserSchema = new Schema({
 		required: strings.schema.required,
 		validate: [
 			function(password) {
-				console.log(this.password);
 				return this.salt ? true : password && password.length >= 6 && password.length <= 16;
 			}, strings.schema.users.pwdlength
 		],
