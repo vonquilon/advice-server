@@ -1,6 +1,4 @@
 var config = require('./config'),
-	https = require('https'),
-	fs = require('fs'),
 	express = require('express'),
 	morgan = require('morgan'),
 	compress = require('compression'),
@@ -8,16 +6,19 @@ var config = require('./config'),
 	methodOverride = require('method-override');
 
 module.exports = function() {
-	var app = express();
-    var server = https.createServer({
-        key: fs.readFileSync('./config/certs/advc.key'),
-        cert: fs.readFileSync('./config/certs/advc.crt'),
-        passphrase: 'iSp00nyou'
-    }, app);
+	var app = express(),
+		server;
 
-	if (process.env.NODE_ENV === 'development') {
+	if (process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test') {
+        server = require('http').createServer(app);
 		app.use(morgan('dev'));
 	} else if (process.env.NODE_ENV === 'production') {
+        var fs = fs = require('fs');
+        server = require('https').createServer({
+            key: fs.readFileSync('./config/certs/advc.key'),
+            cert: fs.readFileSync('./config/certs/advc.crt'),
+            passphrase: 'iSp00nyou'
+        }, app);
 		app.use(compress());
 	}
 
