@@ -15,6 +15,7 @@
     "gulp-env": "^0.2.0",
     "gulp-mocha": "^2.2.0",
     "gulp-nodemon": "^2.0.4",
+    "run-sequence": "^1.1.5",
     "should": "^7.1.1",
     "supertest": "^1.1.0"
   }

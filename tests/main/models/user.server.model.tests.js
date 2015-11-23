@@ -29,4 +29,11 @@ describe('User Model Unit Tests:', function() {
             done();
         });
     });
+
+    after(function(done) {
+        app.close(function() {
+            console.log('closed');
+            done();
+        });
+    });
 });
