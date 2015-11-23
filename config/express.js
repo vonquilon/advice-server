@@ -1,18 +1,18 @@
-var config = require('./config'),
-	express = require('express'),
+var express = require('express'),
 	morgan = require('morgan'),
 	compress = require('compression'),
 	bodyParser = require('body-parser'),
-	methodOverride = require('method-override');
+	methodOverride = require('method-override'),
+    configStr = require('../utils/config.strings');
 
 module.exports = function() {
 	var app = express(),
 		server;
 
-	if (process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test') {
+	if (process.env.NODE_ENV === configStr.env.dev || process.env.NODE_ENV === configStr.env.test) {
         server = require('http').createServer(app);
 		app.use(morgan('dev'));
-	} else if (process.env.NODE_ENV === 'production') {
+	} else if (process.env.NODE_ENV === configStr.env.prod) {
         var fs = fs = require('fs');
         server = require('https').createServer({
             key: fs.readFileSync('./config/certs/advc.key'),
