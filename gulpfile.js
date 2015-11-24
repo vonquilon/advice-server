@@ -11,13 +11,20 @@ gulp.task('test', function() {
         .pipe(mocha());
 });
 
+gulp.task('watch-tests', function() {
+    gulp.watch(['./**/*.js', '!./node_modules/**/*'], ['test']);
+});
+
+gulp.task('run-tests', function(cb) {
+    runSequence('test', 'watch-tests', cb);
+});
+
 gulp.task('nodemon', function() {
     nodemon({
         script: 'server.js',
         ext: 'js',
         env: { NODE_ENV: 'development' },
-        ignore: ['gulpfile.js'],
-        tasks: ['test']
+        ignore: ['gulpfile.js', './tests']
     });
 });
 

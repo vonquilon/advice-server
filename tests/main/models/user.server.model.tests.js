@@ -32,7 +32,6 @@ describe('User Model Unit Tests:', function() {
 
     after(function(done) {
         app.close(function() {
-            console.log('closed');
             done();
         });
     });
