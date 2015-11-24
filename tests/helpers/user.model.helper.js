@@ -5,7 +5,8 @@ module.exports = {
         return new User({
             email: 'user@example.com',
             username: 'user',
-            password: 'username1'
+            password: 'username1',
+            provider: 'fb'
         });
     }
 };

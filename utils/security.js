@@ -4,8 +4,8 @@ exports.genRandomStr = function() {
 	return new Buffer(crypto.randomBytes(16).toString('base64'), 'base64');
 };
 
-exports.genRandomString = function(length) {
-    return crypto.randomBytes(length).toString('base64');
+exports.genRandomString = function(bytes) {
+    return crypto.randomBytes(bytes).toString('base64');
 };
 
 exports.genHmac = function(key) {

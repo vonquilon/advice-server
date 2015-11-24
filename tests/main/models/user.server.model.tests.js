@@ -13,50 +13,46 @@ describe('User Model Unit Tests:', function() {
     });
 
     describe('Testing validations', function() {
-        it('Should save without problems when all user fields are valid', function() {
+        it('Should save without problems when all user fields are valid', function(done) {
             user.save(function(err) {
                 should.not.exist(err);
+                done();
             });
         });
 
-        it('Should not save when email is not in a valid format (i.e., "user@example.com")', function() {
+        it('Should not save when email is not in a valid format (i.e., "user@example.com")', function(done) {
             user.email = 'invalid-email';
             user.save(function(err) {
                 should.exist(err);
                 err.should.have.property('errors');
                 testErr(err, 'invalid email "invalid-email"');
+                done();
             });
         });
 
-        it('Should not save when email is missing', function() {
-            delete user.email;
+        it('Should not save when email is missing', function(done) {
+            user.email = '';
             user.save(function(err) {
                 should.exist(err);
                 err.should.have.property('errors');
                 testErr(err, 'email is required');
+                done();
             });
         });
 
-        it('Should not save when email is more than 50 characters', function() {
-            user.email = security.genRandomString(16) + '@example.com';
-            console.log(user.email);
+        it('Should not save when email is more than 50 characters', function(done) {
+            user.email = security.genRandomString(128).substring(0, 39) + '@example.com'; // string length is 51
             user.save(function(err) {
                 should.exist(err);
                 err.should.have.property('errors');
-                var errMsg = errHandler.getErrMsg(err);
-                console.log(errMsg);
-                errMsg.should.have.property('msg').and.have.property('statCode');
-                errMsg.msg.should.eql('email is required');
-                errMsg.statCode.should.equal(409);
+                testErr(err, 'email cannot exceed 50 characters');
+                done();
             });
         });
 
         function testErr(err, expectedMsg) {
             var errMsg = errHandler.getErrMsg(err);
-            console.log(errMsg);
-            errMsg.should.have.property('msg').and.have.property('statCode');
-            errMsg.msg.should.equal(expectedMsg);
-            errMsg.statCode.should.equal(409);
+            errMsg.should.have.properties({msg: expectedMsg, statCode: 409});
         }
     });
 

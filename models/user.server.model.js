@@ -17,7 +17,11 @@ var UserSchema = new Schema({
 		trim: true,
 		unique: true,
 		required: strings.schema.required,
-        match: [/^([\w\-\']|\.(?!\.))(\.?[\w\-\'])*([\w\-\']|\.)$/g, strings.schema.users.invalidUsrNam],
+        validate: [
+            function(username) {
+                return /^([\w\-\']|\.(?!\.))(\.?[\w\-\'])*([\w\-\']|\.)$/g.test(username);
+            }, strings.schema.users.invalidUsrNam
+        ],
 		minlength: [2, strings.schema.minlength],
 		maxlength: [30, strings.schema.maxlength]
 	},
