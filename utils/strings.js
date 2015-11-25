@@ -32,7 +32,7 @@ module.exports = {
                 msg += path ? path : '{PATH}';
                 msg += ' ';
                 msg += val ? val : '"{VALUE}"';
-                return msg += ' already exists';
+                return msg + ' already exists';
             }
         },
         _500: {
@@ -48,7 +48,7 @@ module.exports = {
         users: {
             pwdlength: 'passwords should be between 8 and 16 characters',
             invalidPwd: 'passwords should contain at least 1 number',
-			invalidUsrNam: "usernames can only contain [(a-z),(0-9),-,_,',.]"
+			invalidUsrNam: "usernames must be at least 2 characters in [(a-z),(0-9),-,_,',.]"
         }
     }
 };

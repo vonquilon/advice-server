@@ -1,11 +1,19 @@
 var crypto = require('crypto');
 
 exports.genRandomStr = function() {
-	return new Buffer(crypto.randomBytes(16).toString('base64'), 'base64');
+	return new Buffer(crypto.randomBytes(16).toString('base64'), 'base64'); // try using genRandomString below
 };
 
-exports.genRandomString = function(bytes) {
-    return crypto.randomBytes(bytes).toString('base64');
+exports.genRandomString = function(bytes, encoding) {
+	if (typeof bytes == 'number') {
+        if (!encoding) {
+            encoding = 'base64';
+        }
+    } else {
+        encoding = bytes;
+        bytes = 256;
+    }
+    return crypto.randomBytes(bytes).toString(encoding);
 };
 
 exports.genHmac = function(key) {

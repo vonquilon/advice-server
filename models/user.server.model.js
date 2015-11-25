@@ -22,7 +22,6 @@ var UserSchema = new Schema({
                 return /^([\w\-\']|\.(?!\.))(\.?[\w\-\'])*([\w\-\']|\.)$/g.test(username);
             }, strings.schema.users.invalidUsrNam
         ],
-		minlength: [2, strings.schema.minlength],
 		maxlength: [30, strings.schema.maxlength]
 	},
 	password: {
