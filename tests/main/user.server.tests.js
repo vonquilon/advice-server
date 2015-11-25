@@ -1,20 +1,16 @@
 var app = require('../../server'),
-    helper = require('../helpers/user.model.helper'),
+    helper = require('../helpers/user.server.helper'),
     should = require('should'),
     request = require('supertest'),
     errHandler = require('../../utils/errHandler'),
     strings = require('../../utils/strings'),
     security = require('../../utils/security');
 
-var user;
-
 describe('User Unit Tests:', function() {
-    beforeEach(function() {
-        user = helper.getValidUser();
-    });
 
-    describe('Testing validations', function() {
-        var user2;
+    describe('Testing schema validations', function() {
+
+        var user, user2;
 
         before(function(done) {
             user2 = helper.getValidUser();
@@ -23,6 +19,10 @@ describe('User Unit Tests:', function() {
             user2.save(function(){
                 done();
             });
+        });
+
+        beforeEach(function() {
+            user = helper.getValidUser();
         });
 
         it('Should save without problems when all user fields are valid', function(done) {
@@ -172,6 +172,12 @@ describe('User Unit Tests:', function() {
             });
         });
 
+        afterEach(function(done) {
+            user.remove(function() {
+                done();
+            });
+        });
+
         after(function(done) {
             user2.remove(function() {
                 done();
@@ -192,12 +198,58 @@ describe('User Unit Tests:', function() {
             var errMsg = errHandler.getErrMsg(err);
             errMsg.should.have.properties({msg: msg, statCode: statCode});
         }
-    });
 
-    afterEach(function(done) {
-        user.remove(function() {
-            done();
+    }); // END--Testing model validations
+
+    describe('Testing api calls', function() {
+
+        var userBody = {
+            email: 'iamuser@ex.com',
+            username: 'iamuser.25',
+            password: 'wordpass52'
+        };
+        var user,
+            req = request('http://localhost:3000');
+
+        before(function(done) {
+            user = helper.getValidUser(userBody);
+            user.save(function() {
+                done();
+            });
         });
+
+        it('Should register a new user when validations pass', function(done) {
+            var newUser = {
+                email: 'newuser@ex.com',
+                username: 'newuser',
+                password: 'codepass1'
+            };
+
+            req.post('/register')
+                .accept('application/json')
+                .send(newUser)
+                .expect('Content-Type', /json/)
+                .expect(201)
+                .end(function(err, res) {
+                    if (err) return done(err);
+
+                    res.body.should.be.an.Object;
+                    res.body.should.have.properties('_id', 'accessToken', 'created');
+                    res.body.should.have.properties({ email: newUser.email, username: newUser.username });
+                    res.body.should.not.have.properties('password', 'role', 'salt', 'provider');
+
+                    helper.User.findByIdAndRemove(res.body._id, function() {
+                        done();
+                    });
+                });
+        });
+
+        after(function(done) {
+            user.remove(function() {
+                done();
+            });
+        });
+
     });
 
     after(function(done) {
@@ -205,4 +257,5 @@ describe('User Unit Tests:', function() {
             done();
         });
     });
-});
+
+}); // END--User Unit Tests:
