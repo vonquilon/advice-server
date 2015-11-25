@@ -3,6 +3,10 @@ var User = require('mongoose').model('User'),
 	strings = require('../utils/strings');
 
 exports.create = function(req, res) {
+	if (req.body.role) {
+		req.body.role = undefined;
+	}
+
 	var user = new User(req.body);
 
 	user.provider = 'local';

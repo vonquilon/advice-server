@@ -1,9 +1,10 @@
-var app = require('../../../server'),
-    helper = require('../../helpers/user.model.helper'),
+var app = require('../../server'),
+    helper = require('../helpers/user.model.helper'),
     should = require('should'),
-    errHandler = require('../../../utils/errHandler'),
-    strings = require('../../../utils/strings'),
-    security = require('../../../utils/security');
+    request = require('supertest'),
+    errHandler = require('../../utils/errHandler'),
+    strings = require('../../utils/strings'),
+    security = require('../../utils/security');
 
 var user;
 
@@ -42,7 +43,7 @@ describe('User Unit Tests:', function() {
         });
 
         it('Should not save when email is missing', function(done) {
-            user.email = '';
+            user.email = undefined;
             user.save(function(err) {
                 should.exist(err);
                 err.should.have.property('errors');
@@ -72,7 +73,7 @@ describe('User Unit Tests:', function() {
         });
 
         it('Should not save when username is missing', function(done) {
-            user.username = '';
+            user.username = undefined;
             user.save(function(err) {
                 should.exist(err);
                 err.should.have.property('errors');
@@ -122,7 +123,7 @@ describe('User Unit Tests:', function() {
         });
 
         it('Should not save when password is missing', function(done) {
-            user.password = '';
+            user.password = undefined;
             user.save(function(err) {
                 should.exist(err);
                 err.should.have.property('errors');
@@ -162,7 +163,7 @@ describe('User Unit Tests:', function() {
         });
 
         it("Should not save when provider is missing", function(done) {
-            user.provider = '';
+            user.provider = undefined;
             user.save(function(err) {
                 should.exist(err);
                 err.should.have.property('errors');

@@ -19,4 +19,14 @@ if (process.env.NODE_ENV === configStr.env.test) {
 
 app.listen(port);
 
-module.exports = app;
+module.exports = {
+	server: app,
+	db: db,
+	close: function(cb) {
+		app.close(function() {
+			db.disconnect(function() {
+				cb();
+			});
+		});
+	}
+};
