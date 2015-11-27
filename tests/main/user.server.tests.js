@@ -244,6 +244,74 @@ describe('User Unit Tests:', function() {
                 });
         });
 
+        it('Should not register a new user when validation(s) fail', function(done) {
+            var newUser = {
+                email: 'newuser@ex.com',
+                username: 'newuser',
+                password: 'codepass'
+            };
+
+            req.post('/register')
+                .accept('text/html')
+                .send(newUser)
+                .expect('Content-Type', /text/)
+                .expect(409, done);
+        });
+
+        it('Should sign in an existing user and generate a new access token', function(done) {
+            req.get('/register')
+                .accept('application/json')
+                .set(strings.headerNames.username, userBody.username)
+                .set(strings.headerNames.password, userBody.password)
+                .expect('Content-Type', /json/)
+                .expect(200)
+                .end(function(err, res) {
+                    if (err) return done(err);
+
+                    res.body.should.be.an.Object;
+                    res.body.should.have.properties('_id', 'created');
+                    res.body.should.have.properties({ email: userBody.email, username: userBody.username });
+                    res.body.should.not.have.properties('password', 'role', 'salt', 'provider');
+                    res.body.should.have.property('accessToken').and.not.equal(user.accessToken);
+
+                    done();
+                });
+        });
+
+        it('Should send an error message during sign in when user is not found', function(done) {
+            req.get('/register')
+                .accept('text/html')
+                .set(strings.headerNames.username, 'fakeuser')
+                .set(strings.headerNames.password, userBody.password)
+                .expect('Content-Type', /text/)
+                .expect(404)
+                .end(function(err, res) {
+                    if (err) return done(err);
+
+                    res.text.should.be.a.String;
+                    res.text.should.equal(strings.statCode._404.unknownUsrNam);
+
+                    done();
+                });
+        });
+
+        it('Should send an error message during sign in when password is wrong', function(done) {
+            req.get('/register')
+                .accept('text/html')
+                .set(strings.headerNames.username, userBody.username)
+                .set(strings.headerNames.password, 'wrongpassword')
+                .expect('Content-Type', /text/)
+                .expect(401)
+                .end(function(err, res) {
+                    if (err) return done(err);
+
+                    res.text.should.be.a.String;
+                    res.text.should.equal(strings.statCode._401.wrongPassword);
+
+                    done();
+                });
+        });
+
         after(function(done) {
             user.remove(function() {
                 done();
