@@ -213,7 +213,7 @@ describe('User Unit Tests:', function() {
 
         before(function(done) {
             user = helper.getValidUser(userBody);
-            user.save(function() {
+            user.genAccTokAndSave(function() {
                 done();
             });
         });
@@ -258,6 +258,35 @@ describe('User Unit Tests:', function() {
                 .expect(409, done);
         });
 
+        it("Should reassign the role property to 'user' if the role property exists in the request body", function(done) {
+            var newUser = {
+                email: 'newuser@ex.com',
+                username: 'newuser',
+                password: 'codepass1',
+                role: 'admin'
+            };
+
+            req.post('/register')
+                .accept('application/json')
+                .send(newUser)
+                .expect('Content-Type', /json/)
+                .expect(201)
+                .end(function(err, res) {
+                    if (err) return done(err);
+
+                    res.body.should.be.an.Object;
+                    res.body.should.have.property('_id');
+
+                    helper.User.findById(res.body._id, 'role', function(err, user) {
+                        user.should.have.property('role', 'user');
+
+                        helper.User.findByIdAndRemove(res.body._id, function() {
+                            done();
+                        });
+                    });
+                });
+        });
+
         it('Should sign in an existing user and generate a new access token', function(done) {
             req.get('/register')
                 .accept('application/json')
@@ -273,6 +302,7 @@ describe('User Unit Tests:', function() {
                     res.body.should.have.properties({ email: userBody.email, username: userBody.username });
                     res.body.should.not.have.properties('password', 'role', 'salt', 'provider');
                     res.body.should.have.property('accessToken').and.not.equal(user.accessToken);
+                    user.accessToken = res.body.accessToken;
 
                     done();
                 });
@@ -307,6 +337,40 @@ describe('User Unit Tests:', function() {
 
                     res.text.should.be.a.String;
                     res.text.should.equal(strings.statCode._401.wrongPassword);
+
+                    done();
+                });
+        });
+
+        it('Should reset the access token when a user signs out', function(done) {
+            req.put('/register')
+                .accept('text/html')
+                .send(user)
+                .expect(204)
+                .end(function(err) {
+                    if (err) return done(err);
+
+                    helper.User.findById(user._id, 'accessToken', function(err, usr) {
+                        usr.should.have.property('accessToken', '');
+
+                        user.update({ accessToken: user.accessToken }, function() {
+                            done();
+                        });
+                    });
+                });
+        });
+
+        it('Should send an error when a user tries to sign out with an invalid access token', function(done) {
+            req.put('/register')
+                .accept('text/html')
+                .send({ _id: user._id, accessToken: 'invalid' })
+                .expect('Content-Type', /text/)
+                .expect(401)
+                .end(function(err, res) {
+                    if (err) return done(err);
+
+                    res.text.should.be.a.String;
+                    res.text.should.equal(strings.statCode._401.unauthAcc);
 
                     done();
                 });
