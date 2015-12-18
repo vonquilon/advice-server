@@ -376,6 +376,60 @@ describe('User Unit Tests:', function() {
                 });
         });
 
+        it('Should return a json user when the user exists', function(done) {
+            req.get('/users')
+                .accept('application/json')
+                .query('username='+user.username)
+                .expect('Content-Type', /json/)
+                .expect(200)
+                .end(function(err, res) {
+                    if (err) return done(err);
+
+                    res.body.should.be.an.Object;
+                    res.body.should.have.properties({ email: user.email, username: user.username, created: user.created.toJSON() });
+                    res.body.should.not.have.properties('_id', 'password', 'role', 'salt', 'provider');
+
+                    done();
+                });
+        });
+
+        it("Should send an error when a user doesn't exist", function(done) {
+            req.get('/users')
+                .accept('text/html')
+                .query('username=nouser')
+                .expect('Content-Type', /text/)
+                .expect(404)
+                .end(function(err, res) {
+                    if (err) return done(err);
+
+                    res.text.should.be.a.String;
+                    res.text.should.equal(strings.statCode._404.unknownUsrNam);
+
+                    done();
+                });
+        });
+
+        it('Should return a list of users in json when the user is an admin', function(done) {
+            user.update({ role: 'admin' }, function() {
+                req.get('/users')
+                    .accept('application/json')
+                    .set(strings.headerNames.userId, user._id)
+                    .set(strings.headerNames.accessToken, user.accessToken)
+                    .expect('Content-Type', /json/)
+                    .expect(200)
+                    .end(function(err, res) {
+                        if (err) return done(err);
+
+                        res.body.should.be.an.Array;
+                        res.body.length.should.equal(1);
+
+                        user.update({ role: 'user' }, function() {
+                            done();
+                        });
+                    });
+            });
+        });
+
         after(function(done) {
             user.remove(function() {
                 done();
