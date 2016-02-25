@@ -12,18 +12,6 @@ var UserSchema = new Schema({
 		match: [/.+\@.+\..+/, strings.schema.invalid],
 		maxlength: [50, strings.schema.maxlength]
 	},
-	username: {
-		type: String,
-		trim: true,
-		unique: true,
-		required: strings.schema.required,
-        validate: [
-            function(username) {
-                return /^([\w\-\']|\.(?!\.))(\.?[\w\-\'])*([\w\-\']|\.)$/g.test(username);
-            }, strings.schema.users.invalidUsrNam
-        ],
-		maxlength: [30, strings.schema.maxlength]
-	},
 	password: {
 		type: String,
 		required: strings.schema.required,
@@ -71,10 +59,10 @@ UserSchema.methods.authenticate = function(password) {
 UserSchema.methods.genAccTokAndSave = function(reset, options, cb) {
 	if (typeof reset == 'boolean') {
         this.accessToken = '';
-    } else if (this.email && this.username) {
+    } else if (this.email) {
         cb = options;
         options = reset;
-        this.accessToken = security.genHmac(security.genRandomStr(), this.email, this.username);
+        this.accessToken = security.genHmac(security.genRandomStr(), this.email);
     }
 
     if (cb) {
@@ -104,14 +92,13 @@ UserSchema.methods.clean = function() {
     return {
     	_id: this._id,
     	email: this.email,
-    	username: this.username,
     	accessToken: this.accessToken,
     	created: this.created
     };
 };
 
-UserSchema.statics.findByUsername = function(username) {
-	arguments[0] = { username: username };
+UserSchema.statics.findByEmail = function(email) {
+	arguments[0] = { email: email };
     return this.findOne.apply(this, arguments);
 };
 

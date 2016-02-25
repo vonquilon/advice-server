@@ -1,6 +1,6 @@
 module.exports = {
 	headerNames: {
-        username: 'x-username',
+        email: 'x-email',
         password: 'x-password',
         userId: 'x-user-id',
         accessToken: 'x-access-token'
@@ -17,7 +17,7 @@ module.exports = {
             forbiddenOp: 'forbidden operation'
         },
         _404: {
-            unknownUsrNam: 'unknown username',
+            unknownEmail: 'unknown email',
             usrNotFound: 'user not found'
         },
         _409: {
