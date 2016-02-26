@@ -14,7 +14,6 @@ describe('User Unit Tests:', function() {
 
         before(function(done) {
             user2 = helper.getValidUser();
-            user2.username = 'iamauser';
             user2.email = 'iamauser@example.com';
             user2.save(function(){
                 done();
@@ -32,7 +31,7 @@ describe('User Unit Tests:', function() {
             });
         });
 
-        it('Should not save when email is not in a valid format (i.e., "user@example.com")', function(done) {
+        it('Should not save when email is not in a valid format (i.e., "blah-blah")', function(done) {
             user.email = 'invalid-email';
             user.save(function(err) {
                 should.exist(err);
@@ -68,56 +67,6 @@ describe('User Unit Tests:', function() {
                 should.exist(err);
                 err.should.have.property('code').and.equal(11000);
                 testErr(err, 'email "' + user.email +'" already exists');
-                done();
-            });
-        });
-
-        it('Should not save when username is missing', function(done) {
-            user.username = undefined;
-            user.save(function(err) {
-                should.exist(err);
-                err.should.have.property('errors');
-                testErr(err, 'username is required');
-                done();
-            });
-        });
-
-        it('Should not save when username is invalid (i.e., 2 consecutive periods: user..25)', function(done) {
-            user.username = 'user..25';
-            user.save(function(err) {
-                should.exist(err);
-                err.should.have.property('errors');
-                testErr(err, strings.schema.users.invalidUsrNam);
-                done();
-            });
-        });
-
-        it('Should not save when username is less than 2 chars', function(done) {
-            user.username = 'u';
-            user.save(function(err) {
-                should.exist(err);
-                err.should.have.property('errors');
-                testErr(err, strings.schema.users.invalidUsrNam);
-                done();
-            });
-        });
-
-        it('Should not save when username is more than 30 chars', function(done) {
-            user.username = security.genRandomString(128, 'hex').substring(0, 31); // string length is 31
-            user.save(function(err) {
-                should.exist(err);
-                err.should.have.property('errors');
-                testErr(err, 'username cannot exceed 30 characters');
-                done();
-            });
-        });
-
-        it('Should not save when username already exists in the database', function(done) {
-            user.username = user2.username;
-            user.save(function(err) {
-                should.exist(err);
-                err.should.have.property('code').and.equal(11000);
-                testErr(err, 'username "' + user.username +'" already exists');
                 done();
             });
         });
@@ -205,7 +154,6 @@ describe('User Unit Tests:', function() {
 
         var userBody = {
             email: 'iamuser@ex.com',
-            username: 'iamuser.25',
             password: 'wordpass52'
         };
         var user,
@@ -221,7 +169,6 @@ describe('User Unit Tests:', function() {
         it('Should register a new user when validations pass', function(done) {
             var newUser = {
                 email: 'newuser@ex.com',
-                username: 'newuser',
                 password: 'codepass1'
             };
 
@@ -235,7 +182,7 @@ describe('User Unit Tests:', function() {
 
                     res.body.should.be.an.Object;
                     res.body.should.have.properties('_id', 'accessToken', 'created');
-                    res.body.should.have.properties({ email: newUser.email, username: newUser.username });
+                    res.body.should.have.properties({ email: newUser.email });
                     res.body.should.not.have.properties('password', 'role', 'salt', 'provider');
 
                     helper.User.findByIdAndRemove(res.body._id, function() {
@@ -247,7 +194,6 @@ describe('User Unit Tests:', function() {
         it('Should not register a new user when validation(s) fail', function(done) {
             var newUser = {
                 email: 'newuser@ex.com',
-                username: 'newuser',
                 password: 'codepass'
             };
 
@@ -261,7 +207,6 @@ describe('User Unit Tests:', function() {
         it("Should reassign the role property to 'user' if the role property exists in the request body", function(done) {
             var newUser = {
                 email: 'newuser@ex.com',
-                username: 'newuser',
                 password: 'codepass1',
                 role: 'admin'
             };
@@ -290,7 +235,7 @@ describe('User Unit Tests:', function() {
         it('Should sign in an existing user and generate a new access token', function(done) {
             req.get('/register')
                 .accept('application/json')
-                .set(strings.headerNames.username, userBody.username)
+                .set(strings.headerNames.username, userBody.email)
                 .set(strings.headerNames.password, userBody.password)
                 .expect('Content-Type', /json/)
                 .expect(200)
@@ -299,7 +244,7 @@ describe('User Unit Tests:', function() {
 
                     res.body.should.be.an.Object;
                     res.body.should.have.properties('_id', 'created');
-                    res.body.should.have.properties({ email: userBody.email, username: userBody.username });
+                    res.body.should.have.properties({ email: userBody.email });
                     res.body.should.not.have.properties('password', 'role', 'salt', 'provider');
                     res.body.should.have.property('accessToken').and.not.equal(user.accessToken);
                     user.accessToken = res.body.accessToken;
@@ -308,10 +253,10 @@ describe('User Unit Tests:', function() {
                 });
         });
 
-        it('Should send an error message during sign in when user is not found', function(done) {
+        it('Should send an error message during sign in when email is not found', function(done) {
             req.get('/register')
                 .accept('text/html')
-                .set(strings.headerNames.username, 'fakeuser')
+                .set(strings.headerNames.email, 'fakeemail')
                 .set(strings.headerNames.password, userBody.password)
                 .expect('Content-Type', /text/)
                 .expect(404)
@@ -319,7 +264,7 @@ describe('User Unit Tests:', function() {
                     if (err) return done(err);
 
                     res.text.should.be.a.String;
-                    res.text.should.equal(strings.statCode._404.unknownUsrNam);
+                    res.text.should.equal(strings.statCode._404.unknownEmail);
 
                     done();
                 });
@@ -328,7 +273,7 @@ describe('User Unit Tests:', function() {
         it('Should send an error message during sign in when password is wrong', function(done) {
             req.get('/register')
                 .accept('text/html')
-                .set(strings.headerNames.username, userBody.username)
+                .set(strings.headerNames.email, userBody.email)
                 .set(strings.headerNames.password, 'wrongpassword')
                 .expect('Content-Type', /text/)
                 .expect(401)
@@ -374,60 +319,6 @@ describe('User Unit Tests:', function() {
 
                     done();
                 });
-        });
-
-        it('Should return a json user when the user exists', function(done) {
-            req.get('/users')
-                .accept('application/json')
-                .query('username='+user.username)
-                .expect('Content-Type', /json/)
-                .expect(200)
-                .end(function(err, res) {
-                    if (err) return done(err);
-
-                    res.body.should.be.an.Object;
-                    res.body.should.have.properties({ email: user.email, username: user.username, created: user.created.toJSON() });
-                    res.body.should.not.have.properties('_id', 'password', 'role', 'salt', 'provider');
-
-                    done();
-                });
-        });
-
-        it("Should send an error when a user doesn't exist", function(done) {
-            req.get('/users')
-                .accept('text/html')
-                .query('username=nouser')
-                .expect('Content-Type', /text/)
-                .expect(404)
-                .end(function(err, res) {
-                    if (err) return done(err);
-
-                    res.text.should.be.a.String;
-                    res.text.should.equal(strings.statCode._404.unknownUsrNam);
-
-                    done();
-                });
-        });
-
-        it('Should return a list of users in json when the user is an admin', function(done) {
-            user.update({ role: 'admin' }, function() {
-                req.get('/users')
-                    .accept('application/json')
-                    .set(strings.headerNames.userId, user._id)
-                    .set(strings.headerNames.accessToken, user.accessToken)
-                    .expect('Content-Type', /json/)
-                    .expect(200)
-                    .end(function(err, res) {
-                        if (err) return done(err);
-
-                        res.body.should.be.an.Array;
-                        res.body.length.should.equal(1);
-
-                        user.update({ role: 'user' }, function() {
-                            done();
-                        });
-                    });
-            });
         });
 
         after(function(done) {

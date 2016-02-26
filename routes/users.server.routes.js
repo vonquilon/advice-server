@@ -6,8 +6,6 @@ module.exports = function(app) {
 		.get(users.signin)
 		.put(users.signout);
 
-	app.get('/users', users.getUserInfo);
-
 	app.route('/users/:userId')
 		.put(users.update)
         .delete(users.delete);

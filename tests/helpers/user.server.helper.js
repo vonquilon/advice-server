@@ -4,7 +4,6 @@ module.exports = {
     getValidUser: function(body) {
     	var _body = {
             email: 'user@example.com',
-            username: 'user',
             password: 'username1',
             provider: 'fb'
         };
