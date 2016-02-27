@@ -3,15 +3,16 @@ var Session = require('mongoose').model('Session'),
 	strings = require('../utils/strings');
 
 exports.createSession = function(res, req, next) {
+	if (req.body.lastUsed) {
+		req.body.lastUsed = undefined;
+	}
+
 	var session = new Session(req.body);
 
 	session.save(function(err) {
-		errHandler.handleErr(duplicateMsg, err, res);
+		errHandler.handleErr(err, res);
 
-		delete session.user;
-		delete session.lastUsed;
-
-		res.status(201).json(session);
+		res.status(201).json(session.clean());
 	});
 };
 
@@ -44,11 +45,9 @@ exports.deleteSession = function(res, req, next) {
 
 exports.findSessionById = function(res, req, next, id) {
 	Session.findById(id, function(err, session) {
-		if (err) {
-			return next(err);
-		}
-
-		req.session = session;
-		next();
+		errHandler.handleErr(err, res, function() {
+			req.session = session;
+			next();
+		});
 	});
 };

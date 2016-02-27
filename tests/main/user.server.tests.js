@@ -235,7 +235,7 @@ describe('User Unit Tests:', function() {
         it('Should sign in an existing user and generate a new access token', function(done) {
             req.get('/register')
                 .accept('application/json')
-                .set(strings.headerNames.username, userBody.email)
+                .set(strings.headerNames.email, userBody.email)
                 .set(strings.headerNames.password, userBody.password)
                 .expect('Content-Type', /json/)
                 .expect(200)
