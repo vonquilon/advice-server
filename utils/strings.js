@@ -18,7 +18,8 @@ module.exports = {
         },
         _404: {
             unknownEmail: 'unknown email',
-            usrNotFound: 'user not found'
+            usrNotFound: 'user not found',
+            sessionNotFound: 'session not found'
         },
         _409: {
             usernameDuplicateMsg: 'Username already exists',

@@ -2,7 +2,7 @@ var Session = require('mongoose').model('Session'),
 	errHandler = require('../utils/errHandler'),
 	strings = require('../utils/strings');
 
-exports.createSession = function(res, req, next) {
+exports.createSession = function(req, res) {
 	if (req.body.lastUsed) {
 		req.body.lastUsed = undefined;
 	}
@@ -10,30 +10,33 @@ exports.createSession = function(res, req, next) {
 	var session = new Session(req.body);
 
 	session.save(function(err) {
-		errHandler.handleErr(err, res);
-
-		res.status(201).json(session.clean());
+		errHandler.handleErr(err, res, function() {
+			res.status(201).json(session.clean());
+		});
 	});
 };
 
-exports.getSession = function(req, res, next) {
-	//user.key = security.genHmac(user.key, user.email, user.username, Date.now().toString(), security.genRandomString());
-	var session = req.session;
-	session._id = security.genHmac(security.genRandomString(), session._id);
-	session.lastUsed = Date.now;
+exports.getSession = function(req, res) {
+	if (req.session) {
+		var session = req.session;
+		session.lastUsed = Date.now();
 
-	session.save(function(err) {
-		if (err) {
-			return next(err);
-		}
-
-		delete session.lastUsed;
-
-		res.json(session);
-	});	
+		session.save(function (err) {
+			errHandler.handleErr(err, res, function() {
+				console.log(session.user);
+				session.user.genAccTokAndSave({validateBeforeSave: false}, function(err) {
+					errHandler.handleErr(err, res, function() {
+						res.status(200).json(session.user.clean());
+					});
+				});
+			});
+		});
+	} else {
+		res.status(404).send(strings.statCode._404.sessionNotFound);
+	}
 };
 
-exports.deleteSession = function(res, req, next) {
+exports.deleteSession = function(req, res, next) {
 	req.session.remove(function(err) {
 		if (err) {
 			return next(err);
@@ -43,7 +46,7 @@ exports.deleteSession = function(res, req, next) {
 	});
 };
 
-exports.findSessionById = function(res, req, next, id) {
+exports.findSessionById = function(req, res, next, id) {
 	Session.findById(id, function(err, session) {
 		errHandler.handleErr(err, res, function() {
 			req.session = session;
