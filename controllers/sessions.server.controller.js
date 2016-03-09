@@ -23,7 +23,6 @@ exports.getSession = function(req, res) {
 
 		session.save(function (err) {
 			errHandler.handleErr(err, res, function() {
-				console.log(session.user);
 				session.user.genAccTokAndSave({validateBeforeSave: false}, function(err) {
 					errHandler.handleErr(err, res, function() {
 						res.status(200).json(session.user.clean());
@@ -47,10 +46,12 @@ exports.deleteSession = function(req, res, next) {
 };
 
 exports.findSessionById = function(req, res, next, id) {
-	Session.findById(id, function(err, session) {
-		errHandler.handleErr(err, res, function() {
-			req.session = session;
-			next();
+	Session.findById(id)
+		.populate('user')
+		.exec(function(err, session) {
+			errHandler.handleErr(err, res, function() {
+				req.session = session;
+				next();
+			});
 		});
-	});
 };
