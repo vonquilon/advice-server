@@ -18,6 +18,6 @@ SessionSchema.methods.clean = function() {
 	return {
 		_id: this._id
 	};
-}
+};
 
 mongoose.model('Session', SessionSchema);

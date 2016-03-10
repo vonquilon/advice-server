@@ -3,6 +3,8 @@ var Session = require('mongoose').model('Session'),
 	strings = require('../utils/strings');
 
 exports.createSession = function(req, res) {
+	// TODO: use accesstoken
+
 	if (req.body.lastUsed) {
 		req.body.lastUsed = undefined;
 	}
@@ -17,6 +19,8 @@ exports.createSession = function(req, res) {
 };
 
 exports.getSession = function(req, res) {
+	// TODO: use accesstoken
+
 	if (req.session) {
 		var session = req.session;
 		session.lastUsed = Date.now();
@@ -36,6 +40,8 @@ exports.getSession = function(req, res) {
 };
 
 exports.deleteSession = function(req, res, next) {
+	// TODO: use accesstoken
+
 	req.session.remove(function(err) {
 		if (err) {
 			return next(err);
