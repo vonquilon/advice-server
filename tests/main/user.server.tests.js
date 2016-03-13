@@ -1,5 +1,5 @@
 var app = require('../../server'),
-    helper = require('../helpers/user.server.helper'),
+    helper = require('../helpers/server.helper.js'),
     should = require('should'),
     request = require('supertest'),
     errHandler = require('../../utils/errHandler'),
@@ -134,21 +134,11 @@ describe('User Unit Tests:', function() {
         });
 
         function testErr(err, expectedMsg, expectedStatCode) {
-            var msg, statCode;
-
-            if (typeof expectedMsg == 'string') {
-                msg = expectedMsg;
-                statCode = expectedStatCode ? expectedStatCode : 409;
-            } else {
-                statCode = expectedMsg;
-                msg = strings.statCode._500.somethingWentWrong;
-            }
-
             var errMsg = errHandler.getErrMsg(err);
-            errMsg.should.have.properties({msg: msg, statCode: statCode});
+            errMsg.should.have.properties(helper.testErr(expectedMsg, expectedStatCode));
         }
 
-    }); // END--Testing model validations
+    }); // END--Testing schema validations
 
     describe('Testing api calls', function() {
 
@@ -327,7 +317,7 @@ describe('User Unit Tests:', function() {
             });
         });
 
-    });
+    }); // END--Testing api calls
 
     after(function(done) {
         app.close(function() {

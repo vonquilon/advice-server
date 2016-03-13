@@ -1,6 +1,8 @@
 var User = require('mongoose').model('User');
 
 module.exports = {
+    User: User,
+
     getValidUser: function(body) {
     	var _body = {
             email: 'user@example.com',
@@ -18,5 +20,17 @@ module.exports = {
 
         return new User(_body);
     },
-    User: User
+    testErr: function(expectedMsg, expectedStatCode) {
+        var msg, statCode;
+
+        if (typeof expectedMsg == 'string') {
+            msg = expectedMsg;
+            statCode = expectedStatCode ? expectedStatCode : 409;
+        } else {
+            statCode = expectedMsg;
+            msg = strings.statCode._500.somethingWentWrong;
+        }
+
+        return {msg: msg, statCode: statCode};
+    }
 };
