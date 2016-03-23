@@ -6,7 +6,7 @@ var Session = require('mongoose').model('Session'),
 exports.createSession = function(req, res) {
 	User.findById(req.body.user, function(err, user) {
 		errHandler.handleErr(err, res, function() {
-			if (user && user.validateAccTok(req.get(strings.headerNames.accessToken))) {
+			if (user && user.validateAccTok(req.body.accessToken)) {
 				if (req.body.lastUsed) {
 					req.body.lastUsed = undefined;
 				}

@@ -1,7 +1,9 @@
-var User = require('mongoose').model('User');
+var User = require('mongoose').model('User'),
+    Session = require('mongoose').model('Session');
 
 module.exports = {
     User: User,
+    Session: Session,
 
     getValidUser: function(body) {
     	var _body = {
