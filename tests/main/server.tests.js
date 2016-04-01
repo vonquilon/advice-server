@@ -404,6 +404,47 @@ describe('Tests:', function() {
                     });
             });
 
+            it('Should not create a new session when a user is not found', function(done) {
+                var user2 = helper.getValidUser({ email: 'user2@example.com' });
+                user2.save(function() {
+                    var newSession = { user: user2._id, accessToken: user.accessToken };
+
+                    user2.remove(function() {
+                        req.post('/sessions')
+                            .accept('text/html')
+                            .send(newSession)
+                            .expect('Content-Type', /text/)
+                            .expect(401)
+                            .end(function(err, res) {
+                                if (err) return done(err);
+
+                                res.text.should.be.a.String;
+                                res.text.should.equal(strings.statCode._401.unauthAcc);
+
+                                done();
+                            });
+                    });
+                });
+            });
+
+            it('Should not create a new session when an access token is invalid', function(done) {
+                var newSession = { user: user._id, accessToken: 'blah blah' };
+
+                req.post('/sessions')
+                    .accept('text/html')
+                    .send(newSession)
+                    .expect('Content-Type', /text/)
+                    .expect(401)
+                    .end(function(err, res) {
+                        if (err) return done(err);
+
+                        res.text.should.be.a.String;
+                        res.text.should.equal(strings.statCode._401.unauthAcc);
+
+                        done();
+                    });
+            });
+
             after(function(done) {
                 user.remove(function() {
                     done();
