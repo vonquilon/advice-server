@@ -374,12 +374,16 @@ describe('Tests:', function() {
 
         describe('Testing api calls', function() {
 
-            var user;
+            var user,
+                session;
 
             before(function(done) {
                 user = helper.getValidUser();
                 user.genAccTokAndSave(function() {
-                    done();
+                    session = new helper.Session({ user: user._id, accessToken: user.accessToken });
+                    session.save(function() {
+                        done();
+                    });
                 });
             });
 
@@ -445,19 +449,39 @@ describe('Tests:', function() {
                     });
             });
 
+            // TODO: FIX THIS TEST!! POSSIBLE FIX IS TO CONVERT user._id and user.created to strings
+            it('Should return the user from the session when validations pass', function(done) {
+                req.get('/sessions/'+session._id)
+                    .accept('application/json')
+                    .set(strings.headerNames.accessToken, user.accessToken)
+                    .expect('Content-Type', /json/)
+                    .expect(200)
+                    .end(function(err, res) {
+                        if (err) return done(err);
+
+                        res.body.should.be.an.Object;
+                        res.body.should.have.properties({
+                            _id: user._id,
+                            email: user.email,
+                            created: user.created
+                        });
+                        res.body.should.not.have.properties('password', 'role', 'salt', 'provider');
+                        res.body.should.have.property('accessToken').and.not.equal(user.accessToken);
+                        user.accessToken = res.body.accessToken;
+
+                        done();
+                    });
+            });
+
             after(function(done) {
-                user.remove(function() {
-                    done();
+                session.remove(function() {
+                    user.remove(function () {
+                        done();
+                    });
                 });
             });
 
         }); // END--Testing api calls
-
-        after(function(done) {
-            app.close(function() {
-                done();
-            });
-        });
 
     }); // END--Session Unit Tests:
 
