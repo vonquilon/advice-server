@@ -449,11 +449,9 @@ describe('Tests:', function() {
                     });
             });
 
-            // TODO: FIX THIS TEST!! POSSIBLE FIX IS TO CONVERT user._id and user.created to strings
             it('Should return the user from the session when validations pass', function(done) {
                 req.get('/sessions/'+session._id)
                     .accept('application/json')
-                    .set(strings.headerNames.accessToken, user.accessToken)
                     .expect('Content-Type', /json/)
                     .expect(200)
                     .end(function(err, res) {
@@ -461,13 +459,30 @@ describe('Tests:', function() {
 
                         res.body.should.be.an.Object;
                         res.body.should.have.properties({
-                            _id: user._id,
+                            _id: user._id+'',
                             email: user.email,
-                            created: user.created
+                            created: user.created.toJSON()
                         });
                         res.body.should.not.have.properties('password', 'role', 'salt', 'provider');
                         res.body.should.have.property('accessToken').and.not.equal(user.accessToken);
                         user.accessToken = res.body.accessToken;
+
+                        done();
+                    });
+            });
+
+            it('Should send an error when a session is not found', function(done) {
+                var unsavedSession = new helper.Session({ user: user._id, accessToken: user.accessToken });
+
+                req.get('/sessions/'+unsavedSession._id)
+                    .accept('text/html')
+                    .expect('Content-Type', /text/)
+                    .expect(404)
+                    .end(function(err, res) {
+                        if (err) return done(err);
+
+                        res.text.should.be.a.String;
+                        res.text.should.equal(strings.statCode._404.sessionNotFound);
 
                         done();
                     });

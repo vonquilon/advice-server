@@ -29,21 +29,16 @@ exports.getSession = function(req, res) {
 	if (req.session) {
 		var session = req.session;
 
-		if (session.user.validateAccTok(req.get(strings.headerNames.accessToken))) {
-			session.lastUsed = Date.now();
-
-			session.save(function (err) {
-				errHandler.handleErr(err, res, function () {
-					session.user.genAccTokAndSave({validateBeforeSave: false}, function (err) {
-						errHandler.handleErr(err, res, function () {
-							res.status(200).json(session.user.clean());
-						});
+		session.lastUsed = Date.now();
+		session.save(function (err) {
+			errHandler.handleErr(err, res, function () {
+				session.user.genAccTokAndSave({validateBeforeSave: false}, function (err) {
+					errHandler.handleErr(err, res, function () {
+						res.status(200).json(session.user.clean());
 					});
 				});
 			});
-		} else {
-			res.status(401).send(strings.statCode._401.unauthAcc);
-		}
+		});
 	} else {
 		res.status(404).send(strings.statCode._404.sessionNotFound);
 	}
