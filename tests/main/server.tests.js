@@ -488,6 +488,41 @@ describe('Tests:', function() {
                     });
             });
 
+            it('Should delete the session when validations pass', function(done) {
+                var newSession = new helper.Session({ user: user._id, accessToken: user.accessToken });
+                newSession.save(function() {
+                    req.delete('/sessions/'+newSession._id)
+                        .accept('text/html')
+                        .expect(204)
+                        .end(function(err, res) {
+                            if (err) return done(err);
+
+                            res.text.should.be.empty();
+                            helper.Session.findById(newSession._id, function(session) {
+                                should.not.exist(session);
+                                done();
+                            });
+                        });
+                });
+            });
+
+            it('Should send an error when a user tries to delete an inexistent session', function(done) {
+                var unsavedSession = new helper.Session({ user: user._id, accessToken: user.accessToken });
+
+                req.delete('/sessions/'+unsavedSession._id)
+                    .accept('text/html')
+                    .expect('Content-Type', /text/)
+                    .expect(404)
+                    .end(function(err, res) {
+                        if (err) return done(err);
+
+                        res.text.should.be.a.String;
+                        res.text.should.equal(strings.statCode._404.sessionNotFound);
+
+                        done();
+                    });
+            });
+
             after(function(done) {
                 session.remove(function() {
                     user.remove(function () {

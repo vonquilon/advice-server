@@ -48,15 +48,11 @@ exports.deleteSession = function(req, res) {
 	if (req.session) {
 		var session = req.session;
 
-		if (session.user.validateAccTok(req.get(strings.headerNames.accessToken))) {
-			session.remove(function(err) {
-				errHandler.handleErr(err, res, function() {
-					res.status(204).end();
-				});
+		session.remove(function(err) {
+			errHandler.handleErr(err, res, function() {
+				res.status(204).end();
 			});
-		} else {
-			res.status(401).send(strings.statCode._401.unauthAcc);
-		}
+		});
 	} else {
 		res.status(404).send(strings.statCode._404.sessionNotFound);
 	}
