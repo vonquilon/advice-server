@@ -6,11 +6,12 @@ var PostSchema = new Schema({
 	content: {
 		type: String,
 		required: strings.schema.required,
-		trim: true
+		trim: true,
+		maxlength: [1000, string.schema.maxlength]
 	},
 	category: {
 		type: String,
-		enum: ['Relationships', 'Financial', 'Mental Health', 'Jobs', 'Depression', 'Sexism', 'Racism', 'Physical Health', 'Reply'],
+		enum: ['Relationships', 'Financial', 'Mental Health', 'Jobs', 'Depression', 'Sexism', 'Racism', 'Physical Health'],
 		required: strings.schema.required
 	},
 	author: {
@@ -18,10 +19,6 @@ var PostSchema = new Schema({
 		ref: 'User',
 		required: strings.schema.required
 	},
-	replyTo: {
-		type: Schema.Types.ObjectId,
-		ref: 'Post'
-	},	
 	created: {
 		type: Date,
 		default: Date.now
