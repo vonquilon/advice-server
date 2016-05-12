@@ -4,26 +4,24 @@ var mongoose = require('mongoose'),
     errHandler = require('../utils/errHandler'),
     strings = require('../utils/strings');
 
-exports.createPost = function(req, res) {
-    if (req.query.accessToken && req.query.userId) {
-        User.findById(req.query.userId, 'accessToken', function(err, user) {
-            errHandler.handleErr(err, res);
+exports.create = function(req, res) {
+    User.findById(req.body._id, function(err, user) {
+        errHandler.handleErr(err, res, function() {
+            if (user && user.validateAccTok(req.body.accessToken)) {
+                delete req.body._id;
+                delete req.body.accessToken;
 
-            if (!user || !user.validateAccTok(req.query.accessToken)) {
+                var post = new Post(req.body);
+                post.save(function(err) {
+                    errHandler.handleErr(err, res, function() {
+                        res.status(201).json(post);
+                    });
+                });
+            } else {
                 res.status(401).send(strings.statCode._401.unauthAcc);
             }
-
-            var post = new Post(req.body);
-
-            post.save(function(err) {
-                errHandler.handleErr(err, res, duplicateMsg);
-
-                res.status(201).json(post);
-            });
         });
-    } else {
-        res.status(400).send(strings.statCode._400.invalidQueryParam);
-    }
+    });
 };
 
 exports.listPosts = function(req, res) {
