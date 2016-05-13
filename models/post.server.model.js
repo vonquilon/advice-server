@@ -7,7 +7,7 @@ var PostSchema = new Schema({
 		type: String,
 		required: strings.schema.required,
 		trim: true,
-		maxlength: [1000, string.schema.maxlength]
+		maxlength: [1000, strings.schema.maxlength]
 	},
 	category: {
 		type: String,
@@ -24,6 +24,8 @@ var PostSchema = new Schema({
 		default: Date.now
 	}
 });
+
+// TODO: implement latitude and longitude
 
 PostSchema.statics.findPostsByUsername = function(username, cb) {
     var populateOptions = {
