@@ -19,13 +19,19 @@ var PostSchema = new Schema({
 		ref: 'User',
 		required: strings.schema.required
 	},
+	latitude: {
+		type: Number,
+		required: strings.schema.required
+	},
+	longitude: {
+		type: Number,
+		required: strings.schema.required
+	},
 	created: {
 		type: Date,
 		default: Date.now
 	}
 });
-
-// TODO: implement latitude and longitude
 
 PostSchema.statics.findPostsByUsername = function(username, cb) {
     var populateOptions = {

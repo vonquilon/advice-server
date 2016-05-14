@@ -7,10 +7,8 @@ var mongoose = require('mongoose'),
 exports.create = function(req, res) {
     User.findById(req.body.author, function(err, user) {
         errHandler.handleErr(err, res, function() {
-            if (user && user.validateAccTok(req.body.accessToken)) {
-                console.log(req.body);
+            if (user && user.validateAccTok(req.get(strings.headerNames.accessToken))) {
                 delete req.body.accessToken;
-                console.log(req.body);
 
                 var post = new Post(req.body);
                 post.save(function(err) {
