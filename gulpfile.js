@@ -7,7 +7,7 @@ var gulp = require('gulp'),
 gulp.task('test', function() {
 	env({vars: { NODE_ENV: 'test' }});
 
-    return gulp.src('./tests/main/server.tests.js', { read: false })
+    return gulp.src('./tests/main.server.tests.js', { read: false })
         .pipe(mocha());
 });
 
