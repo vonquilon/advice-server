@@ -22,3 +22,17 @@ exports.create = function(req, res) {
         });
     });
 };
+
+exports.getPosts = function(req, res) {
+    var latitude = req.get(strings.headerNames.latitude),
+        longitude = req.get(strings.headerNames.longitude),
+        radius = req.get(strings.headerNames.radius);
+
+    if (!(latitude >= -90 && latitude <= 90) || !(longitude >= -180 && longitude <= 180)) {
+        res.status(400).send(strings.statCode._400.invalidGPSCoords);
+    } else if (!(radius >= 5 && radius <= 10)) {
+        res.status(400).send(strings.statCode._400.invalidRadius);
+    } else {
+        // TODO: get posts from database and simplify using Equirectangular approximation
+    }
+};

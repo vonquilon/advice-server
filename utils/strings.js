@@ -3,11 +3,16 @@ module.exports = {
         email: 'x-email',
         password: 'x-password',
         userId: 'x-user-id',
-        accessToken: 'x-access-token'
+        accessToken: 'x-access-token',
+        latitude: 'x-latitude',
+        longitude: 'x-longitude',
+        radius: 'x-radius'
     },
     statCode: {
         _400: {
-            invalidQueryParam: 'invalid query parameter'
+            invalidQueryParam: 'invalid query parameter',
+            invalidGPSCoords: 'invalid gps coordinates (-90 <= latitude <= 90, -180 <= longitude <= 180)',
+            invalidRadius: 'invalid radius (5 <= radius <= 10)'
         },
         _401: {
             wrongPassword: 'wrong password',
