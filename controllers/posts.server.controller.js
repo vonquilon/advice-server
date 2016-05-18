@@ -2,7 +2,8 @@ var mongoose = require('mongoose'),
     Post = mongoose.model('Post'),
     User = mongoose.model('User'),
     errHandler = require('../utils/errHandler'),
-    strings = require('../utils/strings');
+    strings = require('../utils/strings'),
+    constants = require('../utils/constants');
 
 exports.create = function(req, res) {
     User.findById(req.body.author, function(err, user) {
@@ -34,5 +35,12 @@ exports.getPosts = function(req, res) {
         res.status(400).send(strings.statCode._400.invalidRadius);
     } else {
         // TODO: get posts from database and simplify using Equirectangular approximation
+        // TODO: exclude latitude and longitude from results and populate author
+        // 1 gps degree is about 69 miles
+        var degrees = radius/constants.MILES_PER_DEGREE;
+        Post.find({
+            latitude: { $gte: latitude-degrees, $lte: latitude+degrees },
+            longitude: { $gte: longitude-degrees, $lte: longitude+degrees }
+        })
     }
 };
