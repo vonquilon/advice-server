@@ -36,11 +36,18 @@ exports.getPosts = function(req, res) {
     } else {
         // TODO: get posts from database and simplify using Equirectangular approximation
         // TODO: exclude latitude and longitude from results and populate author
+        // TODO: test getPosts function
         // 1 gps degree is about 69 miles
         var degrees = radius/constants.MILES_PER_DEGREE;
         Post.find({
             latitude: { $gte: latitude-degrees, $lte: latitude+degrees },
             longitude: { $gte: longitude-degrees, $lte: longitude+degrees }
-        })
+        }).select('-latitude -longitude')
+            .populate('author')
+            .exec(function(err, posts) {
+                errHandler.handleErr(err, res, function() {
+                    console.log(posts);
+                });
+            });
     }
 };
