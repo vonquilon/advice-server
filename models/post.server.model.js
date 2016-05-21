@@ -33,6 +33,16 @@ var PostSchema = new Schema({
 	}
 });
 
+PostSchema.methods.clean = function() {
+	return {
+		_id: this._id,
+		content: this.content,
+		category: this.category,
+		author: this.author,
+		created: this.created
+	};
+};
+
 PostSchema.statics.findPostsByUsername = function(username, cb) {
     var populateOptions = {
         path: 'author',

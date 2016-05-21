@@ -34,18 +34,37 @@ exports.getPosts = function(req, res) {
     } else if (!(radius >= 5 && radius <= 10)) {
         res.status(400).send(strings.statCode._400.invalidRadius);
     } else {
+        // convert strings to numbers
+        latitude = latitude/1;
+        longitude = longitude/1;
+        radius = radius/1;
         // 1 gps degree is about 69 miles
         var degrees = radius/constants.MILES_PER_DEGREE;
 
         Post.find({
-            latitude: { $gte: latitude-degrees, $lte: latitude/1+degrees },
-            longitude: { $gte: longitude-degrees, $lte: longitude/1+degrees }
-        }).select('-latitude -longitude')
-            .populate('author', '_id')
+            latitude: { $gte: latitude-degrees, $lte: latitude+degrees },
+            longitude: { $gte: longitude-degrees, $lte: longitude+degrees }
+        }).populate('author', '_id')
             .exec(function(err, posts) {
                 errHandler.handleErr(err, res, function() {
-                    // TODO: get posts from database and simplify using Equirectangular approximation
-                    res.status(200).json(posts);
+                    // simplify using Equirectangular approximation
+                    var result = [],
+                        radiusM = radius * constants.METERS_PER_MILE, // radius in meters
+                        numOfPosts = posts.length;
+                    console.log(radiusM);
+                    for (var i = 0; i < numOfPosts; i++) {
+                        var post = posts[i],
+                            x = (post.longitude-longitude) * Math.cos((post.latitude+latitude)/2),
+                            y = post.latitude - latitude,
+                            d = Math.sqrt(x*x + y*y) * constants.EARTH_R_M;
+                        console.log(x);
+                        console.log(y);
+                        console.log(d);
+                        if (d <= radiusM) {
+                            result.push(post.clean());
+                        }
+                    }
+                    res.status(200).json(result);
                 });
             });
     }
