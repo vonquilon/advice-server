@@ -3,7 +3,8 @@ var mongoose = require('mongoose'),
     User = mongoose.model('User'),
     errHandler = require('../utils/errHandler'),
     strings = require('../utils/strings'),
-    constants = require('../utils/constants');
+    constants = require('../utils/constants'),
+    helperFuncs = require('../utils/helperFuncs');
 
 exports.create = function(req, res) {
     User.findById(req.body.author, function(err, user) {
@@ -51,15 +52,13 @@ exports.getPosts = function(req, res) {
                     var result = [],
                         radiusM = radius * constants.METERS_PER_MILE, // radius in meters
                         numOfPosts = posts.length;
-                    console.log(radiusM);
+
                     for (var i = 0; i < numOfPosts; i++) {
                         var post = posts[i],
-                            x = (post.longitude-longitude) * Math.cos((post.latitude+latitude)/2),
-                            y = post.latitude - latitude,
+                            x = helperFuncs.degToRad(post.longitude-longitude) * Math.cos(helperFuncs.degToRad(post.latitude+latitude)/2),
+                            y = helperFuncs.degToRad(post.latitude - latitude),
                             d = Math.sqrt(x*x + y*y) * constants.EARTH_R_M;
-                        console.log(x);
-                        console.log(y);
-                        console.log(d);
+
                         if (d <= radiusM) {
                             result.push(post.clean());
                         }
